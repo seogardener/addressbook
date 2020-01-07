@@ -29,18 +29,12 @@ var IndexedDB = {
 		database.onupgradeneeded = function () {
 			var db = database.result;
 			var store = db.createObjectStore(IndexedDB.schemaName, { keyPath: "id", autoIncrement:true } );
+			store.createIndex("typeIdx", "type", { unique : false });
 			store.createIndex("companyIdx", "company", { unique : false });
 			store.createIndex("departIdx", "depart", { unique : false });
 			store.createIndex("teamIdx", "team", { unique : false });
-			store.createIndex("positIdx", "posit", { unique : false });
-			store.createIndex("nameIdx", "name", { unique : false });
-			store.createIndex("jobIdx", "job", { unique : false });
-			store.createIndex("cellIdx", "cell", { unique : false });
-			store.createIndex("emailIdx", "email", { unique : false });
-			store.createIndex("etcIdx", "etc", { unique : false });
-			store.createIndex('comdepIdx', ['company', 'depart' ]);
-			store.createIndex('comdepteamIdx', ['company', 'depart', 'team' ]);
-
+			store.createIndex('typecomIdx', ['type', 'company', 'depart', 'team' ]);
+		
 			var index = store.createIndex("keyIndex", id);
 		}
 	},
@@ -232,14 +226,14 @@ var IndexedDB = {
 		};
 	},
 
-	GroupByCompany : function( callback ) {
+	GroupByMenu : function( callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
 		
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("companyIdx").openCursor(null, 'prev');
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").openCursor(null, 'prev');
 			var last = null;
 			cursor.onsuccess = function (event) {
 				var req = cursor.result;
@@ -261,8 +255,8 @@ var IndexedDB = {
 			};
 		}
 	},
-	
-	selectCompany : function( txt, callback ) {
+
+	selectType : function( txt, callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
 		var datas = [];
@@ -270,7 +264,7 @@ var IndexedDB = {
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("companyIdx").getAll( txt );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").getAll( txt );
 			
 			cursor.onsuccess = function (event) {
 				datas = cursor.result;
@@ -283,119 +277,5 @@ var IndexedDB = {
 		}
 	},
 	
-	GroupByDepart : function( callback ) {
-		var database = this.getConnection();
-		var dupes = new Map();
-		
-		database.onsuccess = function () {
-		var db = database.result;
-		var tx = db.transaction(IndexedDB.schemaName, "readonly");
-		var cursor = tx.objectStore(IndexedDB.schemaName).index("comdepIdx").openCursor(null, 'prev');
-		var last = null;
-		var req, name, id, mixname;
 
-		cursor.onsuccess = function (event) {
-			req = cursor.result;
-			if (!req) return; // Done!
-			name = req.key, id = req.primaryKey;
-			mixname = name[0] + "/" + name[1];
-			if (mixname === last) {
-				// It's a duplicate!
-				if (!dupes.has(mixname)) dupes.set(mixname, []);
-				dupes.get(mixname).push(id);
-			} else {
-				if( last !== null ) {
-					if (!dupes.has(mixname)) dupes.set(mixname, []);
-					dupes.get(mixname).push(id);
-				}
-				last = mixname;
-			}
-			req.continue();
-		};
-		tx.oncomplete = function () {
-			console.log( "트랜잭션이 종료") ;
-			db.close();
-			callback(dupes);
-		};
-		}
-	},
-	
-	selectDepart : function( cName, dName, callback ) {
-		var database = this.getConnection();
-		var dupes = new Map();
-		var datas = [];
-		
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("comdepIdx").getAll( [ cName, dName] );
-			
-			cursor.onsuccess = function (event) {
-				datas = cursor.result;
-			};
-			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
-				db.close();
-				callback(datas);
-			};
-		}
-	},
-
-	GroupByTeam : function( callback ) {
-		var database = this.getConnection();
-		var dupes = new Map();
-		
-		database.onsuccess = function () {
-		var db = database.result;
-		var tx = db.transaction(IndexedDB.schemaName, "readonly");
-		var cursor = tx.objectStore(IndexedDB.schemaName).index("comdepteamIdx").openCursor(null, 'prev');
-		var last = null;
-		var req, name, id, mixname;
-
-		cursor.onsuccess = function (event) {
-			req = cursor.result;
-			if (!req) return; // Done!
-			name = req.key, id = req.primaryKey;
-			mixname = name[0] + "/" + name[1] + "/" + name[2];
-			if (mixname === last) {
-				// It's a duplicate!
-				if (!dupes.has(mixname)) dupes.set(mixname, []);
-				dupes.get(mixname).push(id);
-			} else {
-				if( last !== null ) {
-					if (!dupes.has(mixname)) dupes.set(mixname, []);
-					dupes.get(mixname).push(id);
-				}
-				last = mixname;
-			}
-			req.continue();
-		};
-		tx.oncomplete = function () {
-			console.log( "트랜잭션이 종료") ;
-			db.close();
-			callback(dupes);
-		};
-		}
-	},
-	
-	selectTeam : function( cName, dName, tName, callback ) {
-		var database = this.getConnection();
-		var dupes = new Map();
-		var datas = [];
-		
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("comdepteamIdx").getAll( [ cName, dName, tName ] );
-			
-			cursor.onsuccess = function (event) {
-				datas = cursor.result;
-			};
-			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
-				db.close();
-				callback(datas);
-			};
-		}
-	},
 };

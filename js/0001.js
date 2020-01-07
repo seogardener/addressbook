@@ -1,11 +1,12 @@
 
 IndexedDB.checkDB();
 IndexedDB.createSchema('id');
-genData();
+typeDisplay();
 
 document.getElementById("b_insert").addEventListener("click", function(){
 	var event = {
 		//id:,
+		type:a_type.value,
 		company:a_company.value,
 		depart:a_depart.value, 
 		team:a_team.value, 
@@ -27,12 +28,12 @@ document.getElementById("b_insert").addEventListener("click", function(){
 });
 
 document.getElementById("b_list").addEventListener("click", function(){
+	dashboard.innerHTML	= "<br><table><tbody id='addrBox'></tbody></table><br>";
 	IndexedDB.selectAll( function( data ) {
-		dashboard.innerHTML	= "";
-		for(var i = 0 ; i < data.length ; i ++){
-			dashboard.innerHTML += "<a href='javascript:select( " + data[i].id + ");'> <선택> </a> ";
-			dashboard.innerHTML += "<a href='javascript:deleteOne( " + data[i].id + ");'> <삭제> </a> ";
-			dashboard.innerHTML += JSON.stringify(data[i]) + "<br>";
+		for( var i = 0 ; i < data.length ; i++ ){
+			addrBox.innerHTML += "<tr><td><a href='javascript:select( " + data[i].id + ");'> [#] </a></td><td>"
+				+ JSON.stringify(data[i])
+				+ "</td><td><a href='javascript:deleteOne( " + data[i].id + ");'> [X] </a></td></tr>";
 		}
 	});
 });
@@ -51,9 +52,10 @@ function deleteOne(id){
 
 function select(id){
 	IndexedDB.selectOne( id, function(data){
-		dashboard.innerHTML = JSON.stringify(data) + "<br>";
-		dashboard.innerHTML	+= "선택 완료.";
+		// dashboard.innerHTML = JSON.stringify(data) + "<br>";
+		// dashboard.innerHTML	+= "선택 완료.";
 		a_id.value = data.id;
+		a_type.value = data.type,
 		a_company.value = data.company;
 		a_depart.value = data.depart;
 		a_team.value = data.team; 
@@ -75,6 +77,7 @@ document.getElementById("b_modify").addEventListener("click", function(){
 	}
 	var event = {
 		id:selID,
+		type:a_type.value,
 		company:a_company.value,
 		depart:a_depart.value, 
 		team:a_team.value, 
@@ -114,116 +117,41 @@ document.getElementById("b_search").addEventListener("click", function(){
     });
 });
 
-document.getElementById("b_companyGB").addEventListener("click", function(){
-	dashboard.innerHTML	= "";
-    IndexedDB.GroupByCompany( function(data){
-		//console.log( data );
-		for( var [key, value] of data ) {
-			//console.log( key + " / " + value  ); // 부서 이름 출력
-			dashboard.innerHTML += " &nbsp; <a href='javascript:selectCompanyData(\"" + key + "\");'> " + key + " </a> &nbsp; ";
-			//dashboard.innerHTML += "<button id="b_max">" + key + "</button> + " </a> &nbsp; ";
+function typeDisplay(){
+	typeBoard.innerHTML = "<table style='width:500px;'><tbody><tr id='typeBox'></tr></tbody></table>";
+    IndexedDB.GroupByMenu( function(data){
+		if( data.size == 0 ) {
+			typeBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
+		} else {
+			for( var [key, value] of data ) {
+				typeBox.innerHTML	+= "<td><a href='javascript:selectTypeData(\"" + key + "\");'> " + key + " </a></td>";
+			}	
 		}
     });
-});
+}
 
-function selectCompanyData( txt ) {
-	dashboard.innerHTML	+= "<br>" + txt + " Selected.<br>";
-    IndexedDB.selectCompany( txt, function(data) {
+function selectTypeData( txt ) {
+	dashboard.innerHTML	= "<br>" + txt + " Selected.<br><table><tbody id='addrBox'></tbody></table>";
+    IndexedDB.selectType( txt, function(data) {
 		//console.log( data );
-		dashboard.innerHTML	= "";
 		for(var i = 0 ; i < data.length ; i ++){
-			dashboard.innerHTML += "<a href='javascript:select( " + data[i].id + ");'> <선택> </a> ";
-			dashboard.innerHTML += "<a href='javascript:deleteOne( " + data[i].id + ");'> <삭제> </a> ";
-			dashboard.innerHTML += JSON.stringify(data[i]) + "<br>";
+			addrBox.innerHTML += "<tr><td><a href='javascript:select( " + data[i].id + ");'> [#] </a> </td><td>" 
+				+ JSON.stringify(data[i]) 
+				+ "</td><td><a href='javascript:deleteOne( " + data[i].id + ");'> [X] </a><br></td></tr>";
 		}
     });
 }
 
-document.getElementById("b_departGB").addEventListener("click", function(){
-	dashboard.innerHTML	= "";
-    IndexedDB.GroupByDepart( function(data){
-		//console.log( data );
-		for( var [key, value] of data ) {
-			//console.log( key + " / " + value  ); // 부서 이름 출력
-			dashboard.innerHTML += " &nbsp; <a href='javascript:selectDepartData(\"" + key + "\");'> " + key + " </a> &nbsp; ";
-			//dashboard.innerHTML += "<button id="b_max">" + key + "</button> + " </a> &nbsp; ";
-		}
-    });
-});
-
-function selectDepartData( txt ) {
-	dashboard.innerHTML	+= "<br>" + txt + " Selected.<br>";
-	var names = txt.split(/\//);
-	dashboard.innerHTML	+= "<br> Company : " + names[0] + " / Department : " + names[1];
-    IndexedDB.selectDepart( names[0], names[1], function(data) {
-		//console.log( data );
-		dashboard.innerHTML	= "";
-		for(var i = 0 ; i < data.length ; i ++){
-			dashboard.innerHTML += "<a href='javascript:select( " + data[i].id + ");'> <선택> </a> ";
-			dashboard.innerHTML += "<a href='javascript:deleteOne( " + data[i].id + ");'> <삭제> </a> ";
-			dashboard.innerHTML += JSON.stringify(data[i]) + "<br>";
-		}
-    });
-}
-
-document.getElementById("b_teamGB").addEventListener("click", function(){
-	dashboard.innerHTML	= "";
-    IndexedDB.GroupByTeam( function(data){
-		//console.log( data );
-		for( var [key, value] of data ) {
-			//console.log( key + " / " + value  ); // 부서 이름 출력
-			dashboard.innerHTML += " &nbsp; <a href='javascript:selectTeamData(\"" + key + "\");'> " + key + " </a> &nbsp; ";
-			//dashboard.innerHTML += "<button id="b_max">" + key + "</button> + " </a> &nbsp; ";
-		}
-    });
-});
-
-function selectTeamData( txt ) {
-	dashboard.innerHTML	+= "<br>" + txt + " Selected.<br>";
-	var names = txt.split(/\//);
-	dashboard.innerHTML	+= "<br> Company : " + names[0] + " / Department : " + names[1] + " / Team : " + names[2];
-    IndexedDB.selectTeam( names[0], names[1], names[2], function(data) {
-		//console.log( data );
-		dashboard.innerHTML	= "";
-		for(var i = 0 ; i < data.length ; i ++){
-			dashboard.innerHTML += "<a href='javascript:select( " + data[i].id + ");'> <선택> </a> ";
-			dashboard.innerHTML += "<a href='javascript:deleteOne( " + data[i].id + ");'> <삭제> </a> ";
-			dashboard.innerHTML += JSON.stringify(data[i]) + "<br>";
-		}
-    });
-}
-
-document.getElementById("b_gen100").addEventListener("click", function(){
-	dashboard.innerHTML	= "";
-	genData100();
-	dashboard.innerHTML += "데이터 생성 완료";
-});
-
-function genData() {
-	var val = Math.floor(1000 + Math.random() * 9000);
-	
-	// a_id.value = data.id;
-	a_company.value = "구글" + val;
-	a_depart.value = "기술본부" + val;
-	a_team.value = "시스템운영팀" + val;
-	a_posit.value = "매니저" + val;
-	a_name.value = "홍" + val;
-	a_job.value = "시스템" + val;
-	a_phone.value = "02-0000-" + val;
-	a_cell.value = "010-0000-" + val;
-	a_email.value = val + "@gmail.com";
-	a_etc.value = val;
-}
-
-function genData100() {
-	
+document.getElementById("b_genData").addEventListener("click", function(){
 	var val = Math.floor(1000 + Math.random() * 9000);
 	var clickButton = document.getElementById("b_insert");
 
+	dashboard.innerHTML	= "";
 	for( var i = 0 ; i < 10 ; i++ ) {
-		a_company.value = "구글";
-		a_depart.value = "서비스운영본부";
-		a_team.value = "서비스운영팀";
+		a_type.value = "가족";		//  협력사, 가족사, 퇴사자, 전직동료, 친구, 가족
+		a_company.value = "YOUTUBE";	// 구글, 오라클, IBM, EMC, 애플, 삼성, SONY, PHILIPS, YOUTUBE
+		a_depart.value = "기술본부";	// 경영지원본부 , 기술본부, 사업1본부, 사업3본부, 교육평가연구소,
+		a_team.value = "개발1팀";	// 경영지원팀, 재무팀, 평가팀, 유학사업팀, 콘텐츠사업팀, 신규사업팀, 서비스운영팀, 서비스전략팀, 서비스영업팀, 마케팅사업팀, 디자인팀, 법무팀
 		a_posit.value = "매니저" + val;
 		a_name.value = "홍" + val;
 		a_job.value = "시스템" + val;
@@ -235,4 +163,5 @@ function genData100() {
 		val = Math.floor(1000 + Math.random() * 9000);
 		clickButton.click();
 	}
-}
+	dashboard.innerHTML += "데이터 생성 완료";
+});

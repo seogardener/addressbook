@@ -29,6 +29,7 @@ label {
 	<fieldset>
 		<legend>업무 연락처</legend>
 		<input id="a_id" type="hidden">
+		<label for="a_type">구분</label> <input id="a_type" type="text">
 		<label for="a_company">회사</label> <input id="a_company" type="text">
 		<label for="a_depart">부서</label>  <input id="a_depart"  type="text">
 		<br>
@@ -49,12 +50,9 @@ label {
 		<button id="b_max">id 최대값</button>
 		<input  id="a_search" type="text">
 		<button id="b_search">조회</button>
-		<button id="b_gen100">데이터 생성</button>
-		<br><br>
-		<button id="b_companyGB">회사 목록</button>
-		<button id="b_departGB">부서 목록</button>
-		<button id="b_teamGB">팀 목록</button>
+		<button id="b_genData">데이터 생성</button>
 	</fieldset>
+	<div id="typeBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 </body>
 <script src="js/indexedDB.js"></script>
