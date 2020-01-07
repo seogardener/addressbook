@@ -33,6 +33,7 @@ var IndexedDB = {
 			store.createIndex("companyIdx", "company", { unique : false });
 			store.createIndex("departIdx", "depart", { unique : false });
 			store.createIndex("teamIdx", "team", { unique : false });
+			store.createIndex("positIdx", "posit", { unique : false });
 			store.createIndex('typecomIdx', ['type', 'company', 'depart', 'team' ]);
 		
 			var index = store.createIndex("keyIndex", id);
@@ -72,7 +73,8 @@ var IndexedDB = {
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var store = tx.objectStore(IndexedDB.schemaName).index("keyIndex");
+			var store = tx.objectStore(IndexedDB.schemaName).index("typecomIdx");
+			//var store = tx.objectStore(IndexedDB.schemaName).index("keyIndex");
 		
 			if ('getAll' in store) {
 				store.getAll().onsuccess = function (event) {
@@ -265,6 +267,7 @@ var IndexedDB = {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
 			var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").getAll( txt );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").getAll( txt );
 			
 			cursor.onsuccess = function (event) {
 				datas = cursor.result;
@@ -314,5 +317,37 @@ var IndexedDB = {
 		database.onerror = function () {
 			callback(false);
 		}
-	}
+	},
+	
+	 GetUniqueValue : function( idx, callback ) {
+		var database = this.getConnection();
+		var dupes = new Map();
+		console.log( idx );
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+			var cursor = tx.objectStore(IndexedDB.schemaName).index(idx).openCursor(null, 'prev');
+			var last = null;
+			cursor.onsuccess = function (event) {
+				var req = cursor.result;
+				if (!req) return; // Done!
+				var name = req.key, id = req.primaryKey;
+				if (name === last) {
+					// It's a duplicate!
+					if (!dupes.has(name)) dupes.set(name, []);
+					dupes.get(name).push(id);
+				} else {
+					last = name;
+				}
+				req.continue();
+			};
+			tx.oncomplete = function () {
+				console.log( "트랜잭션이 종료") ;
+				db.close();
+				callback(dupes);
+			};
+		}
+	},
+
 };
+

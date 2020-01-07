@@ -4,6 +4,8 @@ IndexedDB.createSchema('id');
 typeDisplay();
 //databaseExists();
 
+genDatalists();
+
 /* Address Book */
 
 document.getElementById("b_insert").addEventListener("click", function(){
@@ -30,12 +32,23 @@ document.getElementById("b_insert").addEventListener("click", function(){
 });
 
 document.getElementById("b_list").addEventListener("click", function(){
-	dashboard.innerHTML	= "<br><table><tbody id='addrBox'></tbody></table><br>";
+	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td></td><td>Type</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
+	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
 	IndexedDB.selectAll( function( data ) {
-		for( var i = 0 ; i < data.length ; i++ ){
-			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'><td><a href='javascript:select( " + data[i].id + ");'> [#] </a></td><td>"
-				+ JSON.stringify(data[i])
-				+ "</td><td><a href='javascript:deleteOne( " + data[i].id + ");'> [X] </a></td></tr>";
+		for( var i = 0 , lng = data.length ; i < lng ; i++ ){
+			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'>"
+				+ "<td>" + data[i].id + "</td>"
+				+ "<td>" + data[i].type + "</td>"
+				+ "<td>" + data[i].company + "</td>"
+				+ "<td>" + data[i].depart + "</td>"
+				+ "<td>" + data[i].team + "</td>"
+				+ "<td>" + data[i].posit + "</td>"
+				+ "<td>" + data[i].name + "</td>"
+				+ "<td>" + data[i].job + "</td>"
+				+ "<td>" + data[i].phone + "</td>"
+				+ "<td>" + data[i].cell + "</td>"
+				+ "<td>" + data[i].email + "</td>"
+				+ "<td>" + data[i].etc + "</td></tr>";
 		}
 	});
 });
@@ -90,7 +103,7 @@ function select(id){
 };
 	
 document.getElementById("b_modify").addEventListener("click", function(){
-	console.log(seletedID);
+	//console.log(seletedID);
 	var selID = Number.parseInt( a_id.value );
 	if ( selID == 0 ) {
 		alert( "수정할 수 없습니다. ( 아래 이유 참고 ) \r\n 1.기존에 등록된 주소가 아닙니다. 등록 버튼을 누르세요." );
@@ -127,18 +140,30 @@ document.getElementById("b_max").addEventListener("click", function(){
 });
 
 document.getElementById("b_search").addEventListener("click", function(){
-	dashboard.innerHTML	= "";
+	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Type</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
+	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
+
     IndexedDB.searchStr(a_search.value ,function(data){
-		for(var i = 0 ; i < data.length ; i ++){
-			dashboard.innerHTML += "<a href='javascript:select( " + data[i].id + ");'> <선택> </a> ";
-			dashboard.innerHTML += "<a href='javascript:deleteOne( " + data[i].id + ");'> <삭제> </a> ";
-			dashboard.innerHTML += JSON.stringify(data[i]) + "<br>";
+		for(var i = 0, lng = data.length ; i < lng ; i ++){
+			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'>"
+				+ "<td>" + data[i].id + "</td>"
+				+ "<td>" + data[i].type + "</td>"
+				+ "<td>" + data[i].company + "</td>"
+				+ "<td>" + data[i].depart + "</td>"
+				+ "<td>" + data[i].team + "</td>"
+				+ "<td>" + data[i].posit + "</td>"
+				+ "<td>" + data[i].name + "</td>"
+				+ "<td>" + data[i].job + "</td>"
+				+ "<td>" + data[i].phone + "</td>"
+				+ "<td>" + data[i].cell + "</td>"
+				+ "<td>" + data[i].email + "</td>"
+				+ "<td>" + data[i].etc + "</td></tr>";
 		}
     });
 });
 
 function typeDisplay(){
-	typeBoard.innerHTML = "<table><tbody><tr id='typeBox'></tr></tbody></table>";
+	typeBoard.innerHTML = "<table style='width=100%;'><tbody><tr id='typeBox'></tr></tbody></table>";
     IndexedDB.GroupByMenu( function(data){
 		if( data.size == 0 ) {
 			typeBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
@@ -151,13 +176,24 @@ function typeDisplay(){
 }
 
 function selectTypeData( txt ) {
-	dashboard.innerHTML	= "<br>" + txt + " Selected.<br><table><tbody id='addrBox'></tbody></table>";
+	//dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Type</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
+	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
+
     IndexedDB.selectType( txt, function(data) {
-		// console.log( data );
-		for(var i = 0 ; i < data.length ; i ++){
-			addrBox.innerHTML += "<tr draggable='true'><td><a href='javascript:select( " + data[i].id + ");'> [#] </a> </td><td>" 
-				+ JSON.stringify(data[i]) 
-				+ "</td><td><a href='javascript:deleteOne( " + data[i].id + ");'> [X] </a><br></td></tr>";
+		for(var i = 0, lng = data.length ; i < lng ; i ++){
+			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'>"
+				+ "<td>" + data[i].id + "</td>"
+				+ "<td>" + data[i].type + "</td>"
+				+ "<td>" + data[i].company + "</td>"
+				+ "<td>" + data[i].depart + "</td>"
+				+ "<td>" + data[i].team + "</td>"
+				+ "<td>" + data[i].posit + "</td>"
+				+ "<td>" + data[i].name + "</td>"
+				+ "<td>" + data[i].job + "</td>"
+				+ "<td>" + data[i].phone + "</td>"
+				+ "<td>" + data[i].cell + "</td>"
+				+ "<td>" + data[i].email + "</td>"
+				+ "<td>" + data[i].etc + "</td></tr>";
 		}
     });
 }
@@ -202,7 +238,7 @@ document.getElementById("b_genData").addEventListener("click", function(){
 	dashboard.innerHTML += "데이터 생성 완료";
 });
 
-document.getElementById("b_all_delete").addEventListener("click", function(){
+document.getElementById("b_db_delete").addEventListener("click", function(){
 	IndexedDB.deleteAll( function(isOk){
 		dashboard.innerHTML	= "";
 		if(isOk == true) {
@@ -310,7 +346,7 @@ document.addEventListener("dragover", function( event ) {
 document.addEventListener("dragenter", function( event ) {
 	// highlight potential drop target when the draggable element enters it
 	
-	var seledType = JSON.parse( dragged.parentNode.childNodes[0].childNodes[1].innerHTML ).type;
+	var seledType = dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
 	var overType = event.toElement.innerText;
 	
 	if( seledType != overType ) {
@@ -336,18 +372,81 @@ document.addEventListener("drop", function( event ) {
 	// move dragged elem to the selected drop target
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
-		
-		var sel = JSON.parse( event.dataTransfer.getData("text") );
-		var preType = sel.type;
+
+		var preType = dragged.childNodes[1].innerHTML;
 		var postType = event.target.innerText;
 		if( preType != postType ) {
+			
+			var selObj = {
+				id:Number.parseInt( dragged.childNodes[0].innerHTML ),
+				type:dragged.childNodes[1].innerHTML,
+				company:dragged.childNodes[2].innerHTML,
+				depart:dragged.childNodes[3].innerHTML, 
+				team:dragged.childNodes[4].innerHTML, 
+				posit:dragged.childNodes[5].innerHTML, 
+				name:dragged.childNodes[6].innerHTML, 
+				job:dragged.childNodes[7].innerHTML, 
+				phone:dragged.childNodes[8].innerHTML, 
+				cell:dragged.childNodes[9].innerHTML, 
+				email:dragged.childNodes[10].innerHTML, 
+				etc:dragged.childNodes[11].innerHTML
+			}
+			
 			dragged.parentNode.removeChild( dragged );
-			sel.type = postType;
-			IndexedDB.insert(sel,function(data){
-				if(data == 1){
-					console.log ( "id:" + sel.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
+			selObj.type = postType;
+			IndexedDB.insert(selObj,function(data){
+				if(selObj == 1){
+					console.log ( "id:" + data.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
 				}
 			});
 		}
 	}
 }, false);
+
+function genDatalists(){
+	var tdlists = document.getElementById("typelists");
+	var cdlists = document.getElementById("companylists");
+	var ddlists = document.getElementById("departlists");
+	var tedlists = document.getElementById("teamlists");
+	var pdlists = document.getElementById("positlists");
+
+    IndexedDB.GetUniqueValue( 'typeIdx', function(data){
+		if( data.size != 0 ) {
+			for( var [key, value] of data ) {
+				tdlists.innerHTML	+= "<option value='" + key + "'/>";
+			}	
+		}
+    });
+
+    IndexedDB.GetUniqueValue( 'companyIdx', function(data){
+		if( data.size != 0 ) {
+			for( var [key, value] of data ) {
+				cdlists.innerHTML	+= "<option value='" + key + "'/>";
+			}	
+		}
+    });
+	
+    IndexedDB.GetUniqueValue( 'departIdx', function(data){
+		if( data.size != 0 ) {
+			for( var [key, value] of data ) {
+				ddlists.innerHTML	+= "<option value='" + key + "'/>";
+			}	
+		}
+    });
+
+    IndexedDB.GetUniqueValue( 'teamIdx', function(data){
+		if( data.size != 0 ) {
+			for( var [key, value] of data ) {
+				tedlists.innerHTML	+= "<option value='" + key + "'/>";
+			}	
+		}
+    });
+
+    IndexedDB.GetUniqueValue( 'positIdx', function(data){
+		if( data.size != 0 ) {
+			for( var [key, value] of data ) {
+				pdlists.innerHTML	+= "<option value='" + key + "'/>";
+			}	
+		}
+    });
+}

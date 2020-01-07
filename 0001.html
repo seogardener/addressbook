@@ -9,7 +9,6 @@ html {
     height : 100%;
     margin: auto;
 }
-
 body {
     font: 100% Verdana, Helvetica, Arial, sans-serif;
     max-height:100%; 
@@ -29,7 +28,6 @@ label {
 	text-align: center;
 	background: white;
 }
-
 .dropzone {
 	width: 100px;
 	height: 20px;
@@ -38,6 +36,21 @@ label {
 	padding: 2px;
 	color: white;
 	text-align: center;
+}
+table {
+    font: 13px Verdana, Helvetica, Arial, sans-serif;
+    line-height: 25px;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+tr:nth-child(even) {
+	background: #F3F4F6;
+}
+tr:nth-child(odd) {
+	background: #FFFFFF;
+}
+.addrlist tr *:nth-child(1) {
+    display: none;
 }
 </style>
 </head>
@@ -49,12 +62,12 @@ label {
 	<fieldset>
 		<legend>업무 연락처</legend>
 		<input id="a_id" type="hidden">
-		<label for="a_type">구분</label> <input id="a_type" type="text">
-		<label for="a_company">회사</label> <input id="a_company" type="text">
-		<label for="a_depart">부서</label>  <input id="a_depart"  type="text">
+		<label for="a_type">구분</label> <input id="a_type" type="text" list="typelists"> <datalist id="typelists"></datalist>
+		<label for="a_company">회사</label> <input id="a_company" type="text" list="companylists"> <datalist id="companylists"></datalist>
+		<label for="a_depart">부서</label>  <input id="a_depart"  type="text" list="departlists"> <datalist id="departlists"></datalist>
 		<br>
-		<label for="a_team">팀</label>    <input id="a_team"  type="text">
-		<label for="a_posit">직급</label> <input id="a_posit" type="text">
+		<label for="a_team">팀</label>    <input id="a_team"  type="text" list="teamlists"> <datalist id="teamlists"></datalist>
+		<label for="a_posit">직급</label> <input id="a_posit" type="text" list="positlists"> <datalist id="positlists"></datalist>
 		<label for="a_name">이름</label>  <input id="a_name"  type="text">
 		<br>
 		<label for="a_job">업무</label>        <input id="a_job"   type="text">
@@ -75,7 +88,7 @@ label {
 	<fieldset>
 		<legend>설정</legend>
 		DB Name : AddressDB 
-		<button id="b_all_delete">전체 데이터 삭제</button>
+		<button id="b_db_delete">전체 데이터 삭제</button>
 		<button id="b_backup">Data 백업</button>
 		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*">
 	</fieldset>
