@@ -3,6 +3,8 @@ IndexedDB.checkDB();
 IndexedDB.createSchema('id');
 typeDisplay();
 
+/* Address Book */
+
 document.getElementById("b_insert").addEventListener("click", function(){
 	var event = {
 		//id:,
@@ -31,7 +33,7 @@ document.getElementById("b_list").addEventListener("click", function(){
 	dashboard.innerHTML	= "<br><table><tbody id='addrBox'></tbody></table><br>";
 	IndexedDB.selectAll( function( data ) {
 		for( var i = 0 ; i < data.length ; i++ ){
-			addrBox.innerHTML += "<tr><td><a href='javascript:select( " + data[i].id + ");'> [#] </a></td><td>"
+			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'><td><a href='javascript:select( " + data[i].id + ");'> [#] </a></td><td>"
 				+ JSON.stringify(data[i])
 				+ "</td><td><a href='javascript:deleteOne( " + data[i].id + ");'> [X] </a></td></tr>";
 		}
@@ -118,13 +120,14 @@ document.getElementById("b_search").addEventListener("click", function(){
 });
 
 function typeDisplay(){
-	typeBoard.innerHTML = "<table style='width:500px;'><tbody><tr id='typeBox'></tr></tbody></table>";
+	typeBoard.innerHTML = "<table><tbody><tr id='typeBox'></tr></tbody></table>";
     IndexedDB.GroupByMenu( function(data){
 		if( data.size == 0 ) {
 			typeBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
 		} else {
 			for( var [key, value] of data ) {
-				typeBox.innerHTML	+= "<td><a href='javascript:selectTypeData(\"" + key + "\");'> " + key + " </a></td>";
+				//typeBox.innerHTML	+= "<td class='dropzone'><a href='javascript:selectTypeData(\"" + key + "\");'> " + key + " </a></td>";
+				typeBox.innerHTML	+= "<td class='dropzone' onclick=selectTypeData(\"" + key + "\");> " + key + " </a></td>";
 			}	
 		}
     });
@@ -133,14 +136,34 @@ function typeDisplay(){
 function selectTypeData( txt ) {
 	dashboard.innerHTML	= "<br>" + txt + " Selected.<br><table><tbody id='addrBox'></tbody></table>";
     IndexedDB.selectType( txt, function(data) {
-		//console.log( data );
+		// console.log( data );
 		for(var i = 0 ; i < data.length ; i ++){
-			addrBox.innerHTML += "<tr><td><a href='javascript:select( " + data[i].id + ");'> [#] </a> </td><td>" 
+			addrBox.innerHTML += "<tr draggable='true'><td><a href='javascript:select( " + data[i].id + ");'> [#] </a> </td><td>" 
 				+ JSON.stringify(data[i]) 
 				+ "</td><td><a href='javascript:deleteOne( " + data[i].id + ");'> [X] </a><br></td></tr>";
 		}
     });
 }
+
+function dropOnTypeCell(e) {
+	var sel = JSON.parse( e.dataTransfer.getData("text") );
+	var preType = sel.type;
+	var postType = e.target.innerText;
+	
+	sel.type = postType;
+	IndexedDB.insert(sel,function(data){
+		if(data == 1){
+			console.log ( "id:" + sel.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
+		}
+	});
+
+	selectTypeData( preType ) ;
+	e.preventDefault();
+}
+
+// function dragstart(e) {
+// 	e.dataTransfer.setData("text", e.target.cells[1].innerText );
+// }
 
 document.getElementById("b_genData").addEventListener("click", function(){
 	var val = Math.floor(1000 + Math.random() * 9000);
@@ -165,3 +188,68 @@ document.getElementById("b_genData").addEventListener("click", function(){
 	}
 	dashboard.innerHTML += "데이터 생성 완료";
 });
+
+/* Drag&Drop Zone */
+
+var dragged;
+
+/* events fired on the draggable target */
+document.addEventListener("drag", function( event ) { }, false);
+
+document.addEventListener("dragstart", function( event ) {
+	// store a ref. on the dragged elem
+	dragged = event.target;
+	// make it half transparent
+	event.target.style.opacity = .5;
+	event.dataTransfer.setData("text", event.target.cells[1].innerText );
+}, false);
+
+document.addEventListener("dragend", function( event ) {
+	// reset the transparency
+	event.target.style.opacity = "";
+}, false);
+
+/* events fired on the drop targets */
+document.addEventListener("dragover", function( event ) {
+	// prevent default to allow drop
+	event.preventDefault();
+}, false);
+
+document.addEventListener("dragenter", function( event ) {
+	// highlight potential drop target when the draggable element enters it
+	if ( event.target.className == "dropzone" ) {
+		event.target.style.background = "purple";
+	}
+
+}, false);
+
+document.addEventListener("dragleave", function( event ) {
+	// reset background of potential drop target when the draggable element leaves it
+	if ( event.target.className == "dropzone" ) {
+		event.target.style.background = "";
+	}
+
+}, false);
+
+document.addEventListener("drop", function( event ) {
+	// prevent default action (open as link for some elements)
+	event.preventDefault();
+	// move dragged elem to the selected drop target
+	if ( event.target.className == "dropzone" ) {
+		event.target.style.background = "";
+		dragged.parentNode.removeChild( dragged );
+		//event.target.appendChild( dragged );
+		
+		var sel = JSON.parse( event.dataTransfer.getData("text") );
+		var preType = sel.type;
+		var postType = event.target.innerText;
+		
+		sel.type = postType;
+		IndexedDB.insert(sel,function(data){
+			if(data == 1){
+				console.log ( "id:" + sel.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
+			}
+		});
+	}
+
+}, false);
