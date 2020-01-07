@@ -192,6 +192,8 @@ document.getElementById("b_genData").addEventListener("click", function(){
 /* Drag&Drop Zone */
 
 var dragged;
+// images-preloader
+(new Image()).src = "img/xofficecontact_103670.png";
 
 /* events fired on the draggable target */
 document.addEventListener("drag", function( event ) { }, false);
@@ -201,6 +203,12 @@ document.addEventListener("dragstart", function( event ) {
 	dragged = event.target;
 	// make it half transparent
 	event.target.style.opacity = .5;
+	event.target.style.border = "1px solid #cccccc";
+	
+	var img = new Image();
+	img.src = "img/xofficecontact_103670.png";
+	event.dataTransfer.setDragImage(img, 25, 25);
+	
 	event.dataTransfer.setData("text", event.target.cells[1].innerText );
 }, false);
 
@@ -217,8 +225,16 @@ document.addEventListener("dragover", function( event ) {
 
 document.addEventListener("dragenter", function( event ) {
 	// highlight potential drop target when the draggable element enters it
-	if ( event.target.className == "dropzone" ) {
-		event.target.style.background = "purple";
+	
+	var seledType = JSON.parse( dragged.parentNode.childNodes[0].childNodes[1].innerHTML ).type;
+	var overType = event.toElement.innerText;
+	
+	if( seledType != overType ) {
+	
+		if ( event.target.className == "dropzone" ) {
+			event.target.style.background = "purple";
+		}
+		event.dataTransfer.dropEffect = "copy";
 	}
 
 }, false);
@@ -234,22 +250,23 @@ document.addEventListener("dragleave", function( event ) {
 document.addEventListener("drop", function( event ) {
 	// prevent default action (open as link for some elements)
 	event.preventDefault();
+
 	// move dragged elem to the selected drop target
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
-		dragged.parentNode.removeChild( dragged );
-		//event.target.appendChild( dragged );
 		
 		var sel = JSON.parse( event.dataTransfer.getData("text") );
 		var preType = sel.type;
 		var postType = event.target.innerText;
-		
-		sel.type = postType;
-		IndexedDB.insert(sel,function(data){
-			if(data == 1){
-				console.log ( "id:" + sel.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
-			}
-		});
+		if( preType != postType ) {
+			dragged.parentNode.removeChild( dragged );
+			sel.type = postType;
+			IndexedDB.insert(sel,function(data){
+				if(data == 1){
+					console.log ( "id:" + sel.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
+				}
+			});
+		}
 	}
 
 }, false);
