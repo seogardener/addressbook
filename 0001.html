@@ -44,6 +44,7 @@ label {
 <body>
 <div style="width:1px; height:1px; visibility:hidden; overflow:hidden">
     <img src="img/xofficecontact_103670.png" class ="dragContact" />
+    <img src="img/vcsremoved_93492.png" class ="dragStop" />
 </div>
 	<fieldset>
 		<legend>업무 연락처</legend>
@@ -70,6 +71,13 @@ label {
 		<input  id="a_search" type="text">
 		<button id="b_search">조회</button>
 		<button id="b_genData">데이터 생성</button>
+	</fieldset>
+	<fieldset>
+		<legend>설정</legend>
+		DB Name : AddressDB 
+		<button id="b_all_delete">전체 데이터 삭제</button>
+		<button id="b_backup">Data 백업</button>
+		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*">
 	</fieldset>
 	<div id="typeBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>

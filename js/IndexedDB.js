@@ -277,5 +277,42 @@ var IndexedDB = {
 		}
 	},
 	
+//	databaseExists : function( callback ) {
+//		var database = this.getConnection();
+//		var dbExists = false;
+//		database.onsuccess  = function (event){
+//			database.result.close();
+//			dbExists = true;
+//			callback(dbExists);
+//		}
+//		database.onerror = function (event) {
+//			callback(dbExists);
+//		}
+//	},
 
+	deleteAll: function ( callback ) {
+		var database = this.getConnection();
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readwrite");
+			var store = tx.objectStore(IndexedDB.schemaName);
+		
+			store.clear();
+		
+			tx.oncomplete = function () {
+				console.log( "트랜잭션이 종료") ;
+				db.close();
+				callback(true);
+			};
+			tx.onabort  = function(){
+				console.log( "트랜잭션이 취소" );
+			};
+			tx.onerror = function(){
+				console.log( "트랜잭션이 실패" );
+			};
+		}
+		database.onerror = function () {
+			callback(false);
+		}
+	}
 };

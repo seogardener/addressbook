@@ -2,6 +2,7 @@
 IndexedDB.checkDB();
 IndexedDB.createSchema('id');
 typeDisplay();
+//databaseExists();
 
 /* Address Book */
 
@@ -20,7 +21,6 @@ document.getElementById("b_insert").addEventListener("click", function(){
 		email:a_email.value, 
 		etc:a_etc.value
 	}
-	console.log( event );
     IndexedDB.insert(event,function(data){
 		dashboard.innerHTML	= "";
     	if(data == 1){
@@ -39,6 +39,24 @@ document.getElementById("b_list").addEventListener("click", function(){
 		}
 	});
 });
+
+document.getElementById("b_backup").addEventListener("click", function(){
+	dashboard.innerHTML	= "<br>'['를 포함해서 마지막 ']'까지 포함한 모든 내용을 복사해서 파일로 저장하세요. <br><br>";
+	dashboard.innerHTML	+= "<br><table><thead><tr><td>[</td></tr></thead><tbody id='bakupBox'></tbody><tfoot><tr><td>]</td></tr></tfoot></table><br>";
+	IndexedDB.selectAll( function( data ) {
+		var marking = "";
+		var lng = data.length;
+		var lastline = lng -1 ;
+		for( var i = 0 ; i < lng ; i++ ) {
+			if( i < lastline ) {
+				bakupBox.innerHTML += "<tr><td>" + JSON.stringify(data[i]) + ",</td></tr>";
+			} else {
+				bakupBox.innerHTML += "<tr><td>" + JSON.stringify(data[i]) + "</td></tr>";
+			}
+		}
+	});
+});
+
 
 function deleteOne(id){
 	IndexedDB.delete( id, function(data){
@@ -126,7 +144,6 @@ function typeDisplay(){
 			typeBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
 		} else {
 			for( var [key, value] of data ) {
-				//typeBox.innerHTML	+= "<td class='dropzone'><a href='javascript:selectTypeData(\"" + key + "\");'> " + key + " </a></td>";
 				typeBox.innerHTML	+= "<td class='dropzone' onclick=selectTypeData(\"" + key + "\");> " + key + " </a></td>";
 			}	
 		}
@@ -161,10 +178,6 @@ function dropOnTypeCell(e) {
 	e.preventDefault();
 }
 
-// function dragstart(e) {
-// 	e.dataTransfer.setData("text", e.target.cells[1].innerText );
-// }
-
 document.getElementById("b_genData").addEventListener("click", function(){
 	var val = Math.floor(1000 + Math.random() * 9000);
 	var clickButton = document.getElementById("b_insert");
@@ -187,6 +200,77 @@ document.getElementById("b_genData").addEventListener("click", function(){
 		clickButton.click();
 	}
 	dashboard.innerHTML += "데이터 생성 완료";
+});
+
+document.getElementById("b_all_delete").addEventListener("click", function(){
+	IndexedDB.deleteAll( function(isOk){
+		dashboard.innerHTML	= "";
+		if(isOk == true) {
+			dashboard.innerHTML	= "전체 데이터 삭제 작업 완료.";
+		} else {
+			dashboard.innerHTML	= "전체 데이터 삭제 작업 실패. <br> 브라우저 재실행 후 다시 시도하세요.";
+		}
+	});
+	typeDisplay();
+	//databaseExists();
+});
+
+//function databaseExists() {
+//	var data = false;
+//	dashboard.innerHTML	= "";
+//	IndexedDB.databaseExists ( function(data){
+//		if(data == true){
+//			console.log( "DB가 존재합니다." );
+//			b_db_create.disabled = true;
+//			b_db_delete.disabled = false;
+//		} else {
+//			console.log( "DB가 없습니다." );
+//			b_db_create.disabled = false;
+//			b_db_delete.disabled = true;
+//			
+//		}
+//	});
+//}
+
+/* File Control Zone */
+
+
+function isText(type){
+	return type.match(/^text/g);
+}
+
+document.getElementById("addrfile").addEventListener("change", function() {
+	var file = this.files[0];
+	dashboard.innerHTML = "파일로 부터 데이터를 읽어오는 중입니다. <br>";
+	var fReader = new FileReader();
+	fReader.addEventListener("load", function(e){
+		console.log("파일 읽기 완료");
+		if(isText(file.type)){
+			var content = JSON.parse( fReader.result );
+			
+			var lng = content.length;
+			for( var i = 0 ; i < lng ; i++ ) {
+				IndexedDB.insert(content[i],function(data){
+					if(data == 1){
+						console.log( "Data 추가 중 ... [" + i + "/" + lng + "]" );
+					}
+				});
+			}
+			typeDisplay();
+		}
+	});
+	fReader.addEventListener("error", function(e){
+		console.log( "파일 읽는 도중 예외 발생. " + e );
+	});
+	fReader.addEventListener("progress", function(e){
+		console.log( "읽는 중. " );
+	});
+	fReader.addEventListener("loadend", function(e){
+		console.log( "Data 추가 작업 완료. " );
+	});
+	if(isText(file.type)){
+		fReader.readAsText(file);
+	}
 });
 
 /* Drag&Drop Zone */
@@ -236,7 +320,6 @@ document.addEventListener("dragenter", function( event ) {
 		}
 		event.dataTransfer.dropEffect = "copy";
 	}
-
 }, false);
 
 document.addEventListener("dragleave", function( event ) {
@@ -244,7 +327,6 @@ document.addEventListener("dragleave", function( event ) {
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
 	}
-
 }, false);
 
 document.addEventListener("drop", function( event ) {
@@ -268,5 +350,4 @@ document.addEventListener("drop", function( event ) {
 			});
 		}
 	}
-
 }, false);
