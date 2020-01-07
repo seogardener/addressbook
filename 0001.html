@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>::: 업무 연락처</title>
+<style>
+html {
+    background:#fff;
+    height : 100%;
+    margin: auto;
+}
+
+body {
+    font: 100% Verdana, Helvetica, Arial, sans-serif;
+    max-height:100%; 
+    padding:0; 
+    margin: 0 auto;
+    border:0;
+    width:100%;
+    height:100%;
+}
+label {
+	display: inline-block;
+	width: 70px;
+}
+</style>
+</head>
+<body>
+	<fieldset>
+		<legend>업무 연락처</legend>
+		<input id="a_id" type="hidden">
+		<label for="a_company">회사</label> <input id="a_company" type="text">
+		<label for="a_depart">부서</label>  <input id="a_depart"  type="text">
+		<br>
+		<label for="a_team">팀</label>    <input id="a_team"  type="text">
+		<label for="a_posit">직급</label> <input id="a_posit" type="text">
+		<label for="a_name">이름</label>  <input id="a_name"  type="text">
+		<br>
+		<label for="a_job">업무</label>        <input id="a_job"   type="text">
+		<label for="a_phone">회사 전화</label> <input id="a_phone" type="text">
+		<label for="a_cell">휴대 전화</label>  <input id="a_cell"  type="text">
+		<br>
+		<label for="a_email">e-Mail</label> <input id="a_email" type="text">
+		<label for="a_etc">기타</label>     <input id="a_etc"   type="text">
+		<br>
+		<button id="b_insert">등록</button>
+		<button id="b_modify">수정</button>
+		<button id="b_list">목록</button>
+		<button id="b_max">id 최대값</button>
+		<input  id="a_search" type="text">
+		<button id="b_search">조회</button>
+		<button id="b_gen100">데이터 생성</button>
+		<br><br>
+		<button id="b_companyGB">회사 목록</button>
+		<button id="b_departGB">부서 목록</button>
+		<button id="b_teamGB">팀 목록</button>
+	</fieldset>
+	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
+</body>
+<script src="js/indexedDB.js"></script>
+<script src="js/0001.js"></script>
+</html>
