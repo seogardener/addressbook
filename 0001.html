@@ -62,7 +62,7 @@ tr:nth-child(odd) {
 	<fieldset>
 		<legend>업무 연락처</legend>
 		<input id="a_id" type="hidden">
-		<label for="a_type">구분</label> <input id="a_type" type="text" list="typelists"> <datalist id="typelists"></datalist>
+		<label for="a_cat">구분</label> <input id="a_cat" type="text" list="catlists"> <datalist id="catlists"></datalist>
 		<label for="a_company">회사</label> <input id="a_company" type="text" list="companylists"> <datalist id="companylists"></datalist>
 		<label for="a_depart">부서</label>  <input id="a_depart"  type="text" list="departlists"> <datalist id="departlists"></datalist>
 		<br>
@@ -92,7 +92,7 @@ tr:nth-child(odd) {
 		<button id="b_backup">Data 백업</button>
 		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*">
 	</fieldset>
-	<div id="typeBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
+	<div id="catBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 </body>
 <script src="js/indexedDB.js"></script>

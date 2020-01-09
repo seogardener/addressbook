@@ -1,7 +1,7 @@
 
 IndexedDB.checkDB();
 IndexedDB.createSchema('id');
-typeDisplay();
+catDisplay();
 //databaseExists();
 
 genDatalists();
@@ -11,7 +11,7 @@ genDatalists();
 document.getElementById("b_insert").addEventListener("click", function(){
 	var event = {
 		//id:,
-		type:a_type.value,
+		cat:a_cat.value,
 		company:a_company.value,
 		depart:a_depart.value, 
 		team:a_team.value, 
@@ -32,23 +32,23 @@ document.getElementById("b_insert").addEventListener("click", function(){
 });
 
 document.getElementById("b_list").addEventListener("click", function(){
-	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td></td><td>Type</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
+	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td></td><td>Category</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
 	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
 	IndexedDB.selectAll( function( data ) {
 		for( var i = 0 , lng = data.length ; i < lng ; i++ ){
-			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'>"
-				+ "<td>" + data[i].id + "</td>"
-				+ "<td>" + data[i].type + "</td>"
-				+ "<td>" + data[i].company + "</td>"
-				+ "<td>" + data[i].depart + "</td>"
-				+ "<td>" + data[i].team + "</td>"
-				+ "<td>" + data[i].posit + "</td>"
-				+ "<td>" + data[i].name + "</td>"
-				+ "<td>" + data[i].job + "</td>"
-				+ "<td>" + data[i].phone + "</td>"
-				+ "<td>" + data[i].cell + "</td>"
-				+ "<td>" + data[i].email + "</td>"
-				+ "<td>" + data[i].etc + "</td></tr>";
+			addrBox.innerHTML += "<tr draggable='true'><td>" 
+				+ data[i].id + "</td><td>" 
+				+ data[i].cat + "</td><td>" 
+				+ data[i].company + "</td><td>" 
+				+ data[i].depart + "</td><td>" 
+				+ data[i].team + "</td><td>" 
+				+ data[i].posit + "</td><td>" 
+				+ data[i].name + "</td><td>" 
+				+ data[i].job + "</td><td>" 
+				+ data[i].phone + "</td><td>" 
+				+ data[i].cell + "</td><td>" 
+				+ data[i].email + "</td><td>" 
+				+ data[i].etc + "</td></tr>";
 		}
 	});
 });
@@ -88,7 +88,7 @@ function select(id){
 		// dashboard.innerHTML = JSON.stringify(data) + "<br>";
 		// dashboard.innerHTML	+= "선택 완료.";
 		a_id.value = data.id;
-		a_type.value = data.type,
+		a_cat.value = data.cat,
 		a_company.value = data.company;
 		a_depart.value = data.depart;
 		a_team.value = data.team; 
@@ -110,7 +110,7 @@ document.getElementById("b_modify").addEventListener("click", function(){
 	}
 	var event = {
 		id:selID,
-		type:a_type.value,
+		cat:a_cat.value,
 		company:a_company.value,
 		depart:a_depart.value, 
 		team:a_team.value, 
@@ -140,14 +140,14 @@ document.getElementById("b_max").addEventListener("click", function(){
 });
 
 document.getElementById("b_search").addEventListener("click", function(){
-	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Type</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
+	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Category</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
 	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
 
     IndexedDB.searchStr(a_search.value ,function(data){
 		for(var i = 0, lng = data.length ; i < lng ; i ++){
-			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'>"
+			addrBox.innerHTML += "<tr draggable='true'>"
 				+ "<td>" + data[i].id + "</td>"
-				+ "<td>" + data[i].type + "</td>"
+				+ "<td>" + data[i].cat + "</td>"
 				+ "<td>" + data[i].company + "</td>"
 				+ "<td>" + data[i].depart + "</td>"
 				+ "<td>" + data[i].team + "</td>"
@@ -162,28 +162,28 @@ document.getElementById("b_search").addEventListener("click", function(){
     });
 });
 
-function typeDisplay(){
-	typeBoard.innerHTML = "<table style='width=100%;'><tbody><tr id='typeBox'></tr></tbody></table>";
+function catDisplay(){
+	catBoard.innerHTML = "<table style='width=100%;'><tbody><tr id='catBox'></tr></tbody></table>";
     IndexedDB.GroupByMenu( function(data){
 		if( data.size == 0 ) {
-			typeBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
+			catBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
 		} else {
 			for( var [key, value] of data ) {
-				typeBox.innerHTML	+= "<td class='dropzone' onclick=selectTypeData(\"" + key + "\");> " + key + " </a></td>";
+				catBox.innerHTML	+= "<td class='dropzone' onclick=selectCatData(\"" + key + "\");> " + key + " </a></td>";
 			}	
 		}
     });
 }
 
-function selectTypeData( txt ) {
-	//dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Type</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
+function selectCatData( txt ) {
+	//dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Category</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
 	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
 
-    IndexedDB.selectType( txt, function(data) {
+    IndexedDB.selectCat( txt, function(data) {
 		for(var i = 0, lng = data.length ; i < lng ; i ++){
-			addrBox.innerHTML += "<tr draggable='true' ondragstart='dragstart(event);'>"
+			addrBox.innerHTML += "<tr draggable='true'>"
 				+ "<td>" + data[i].id + "</td>"
-				+ "<td>" + data[i].type + "</td>"
+				+ "<td>" + data[i].cat + "</td>"
 				+ "<td>" + data[i].company + "</td>"
 				+ "<td>" + data[i].depart + "</td>"
 				+ "<td>" + data[i].team + "</td>"
@@ -198,19 +198,19 @@ function selectTypeData( txt ) {
     });
 }
 
-function dropOnTypeCell(e) {
+function dropOnCatCell(e) {
 	var sel = JSON.parse( e.dataTransfer.getData("text") );
-	var preType = sel.type;
-	var postType = e.target.innerText;
+	var precat = sel.cat;
+	var postcat = e.target.innerText;
 	
-	sel.type = postType;
+	sel.cat = postcat;
 	IndexedDB.insert(sel,function(data){
 		if(data == 1){
-			console.log ( "id:" + sel.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
+			console.log ( "id:" + sel.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
 		}
 	});
 
-	selectTypeData( preType ) ;
+	selectCatData( precat ) ;
 	e.preventDefault();
 }
 
@@ -220,10 +220,10 @@ document.getElementById("b_genData").addEventListener("click", function(){
 
 	dashboard.innerHTML	= "";
 	for( var i = 0 ; i < 10 ; i++ ) {
-		a_type.value = "가족";		//  협력사, 가족사, 퇴사자, 전직동료, 친구, 가족
+		a_cat.value = "가족";			//  협력사, 가족사, 퇴사자, 전직동료, 친구, 가족
 		a_company.value = "YOUTUBE";	// 구글, 오라클, IBM, EMC, 애플, 삼성, SONY, PHILIPS, YOUTUBE
 		a_depart.value = "기술본부";	// 경영지원본부 , 기술본부, 사업1본부, 사업3본부, 교육평가연구소,
-		a_team.value = "개발1팀";	// 경영지원팀, 재무팀, 평가팀, 유학사업팀, 콘텐츠사업팀, 신규사업팀, 서비스운영팀, 서비스전략팀, 서비스영업팀, 마케팅사업팀, 디자인팀, 법무팀
+		a_team.value = "개발1팀";		// 경영지원팀, 재무팀, 평가팀, 유학사업팀, 콘텐츠사업팀, 신규사업팀, 서비스운영팀, 서비스전략팀, 서비스영업팀, 마케팅사업팀, 디자인팀, 법무팀
 		a_posit.value = "매니저" + val;
 		a_name.value = "홍" + val;
 		a_job.value = "시스템" + val;
@@ -247,7 +247,7 @@ document.getElementById("b_db_delete").addEventListener("click", function(){
 			dashboard.innerHTML	= "전체 데이터 삭제 작업 실패. <br> 브라우저 재실행 후 다시 시도하세요.";
 		}
 	});
-	typeDisplay();
+	catDisplay();
 	//databaseExists();
 });
 
@@ -292,7 +292,7 @@ document.getElementById("addrfile").addEventListener("change", function() {
 					}
 				});
 			}
-			typeDisplay();
+			catDisplay();
 		}
 	});
 	fReader.addEventListener("error", function(e){
@@ -312,6 +312,7 @@ document.getElementById("addrfile").addEventListener("change", function() {
 /* Drag&Drop Zone */
 
 var dragged;
+
 // images-preloader
 (new Image()).src = "img/xofficecontact_103670.png";
 
@@ -322,7 +323,7 @@ document.addEventListener("dragstart", function( event ) {
 	// store a ref. on the dragged elem
 	dragged = event.target;
 	// make it half transparent
-	event.target.style.opacity = .5;
+	event.target.style.opacity = 5;
 	event.target.style.border = "1px solid #cccccc";
 	
 	var img = new Image();
@@ -346,10 +347,10 @@ document.addEventListener("dragover", function( event ) {
 document.addEventListener("dragenter", function( event ) {
 	// highlight potential drop target when the draggable element enters it
 	
-	var seledType = dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
-	var overType = event.toElement.innerText;
+	var seledCat = dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
+	var overCat = event.toElement.innerText;
 	
-	if( seledType != overType ) {
+	if( seledCat != overCat ) {
 	
 		if ( event.target.className == "dropzone" ) {
 			event.target.style.background = "purple";
@@ -373,13 +374,13 @@ document.addEventListener("drop", function( event ) {
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
 
-		var preType = dragged.childNodes[1].innerHTML;
-		var postType = event.target.innerText;
-		if( preType != postType ) {
+		var precat = dragged.childNodes[1].innerHTML;
+		var postcat = event.target.innerText;
+		if( precat != postcat ) {
 			
 			var selObj = {
 				id:Number.parseInt( dragged.childNodes[0].innerHTML ),
-				type:dragged.childNodes[1].innerHTML,
+				cat:dragged.childNodes[1].innerHTML,
 				company:dragged.childNodes[2].innerHTML,
 				depart:dragged.childNodes[3].innerHTML, 
 				team:dragged.childNodes[4].innerHTML, 
@@ -393,10 +394,10 @@ document.addEventListener("drop", function( event ) {
 			}
 			
 			dragged.parentNode.removeChild( dragged );
-			selObj.type = postType;
+			selObj.cat = postcat;
 			IndexedDB.insert(selObj,function(data){
 				if(selObj == 1){
-					console.log ( "id:" + data.id + " ( " + preType + " --> " + postType + ") 이동 완료." );
+					console.log ( "id:" + data.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
 				}
 			});
 		}
@@ -404,13 +405,13 @@ document.addEventListener("drop", function( event ) {
 }, false);
 
 function genDatalists(){
-	var tdlists = document.getElementById("typelists");
+	var tdlists = document.getElementById("catlists");
 	var cdlists = document.getElementById("companylists");
 	var ddlists = document.getElementById("departlists");
 	var tedlists = document.getElementById("teamlists");
 	var pdlists = document.getElementById("positlists");
 
-    IndexedDB.GetUniqueValue( 'typeIdx', function(data){
+    IndexedDB.GetUniqueValue( 'catIdx', function(data){
 		if( data.size != 0 ) {
 			for( var [key, value] of data ) {
 				tdlists.innerHTML	+= "<option value='" + key + "'/>";

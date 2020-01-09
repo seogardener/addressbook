@@ -29,12 +29,14 @@ var IndexedDB = {
 		database.onupgradeneeded = function () {
 			var db = database.result;
 			var store = db.createObjectStore(IndexedDB.schemaName, { keyPath: "id", autoIncrement:true } );
-			store.createIndex("typeIdx", "type", { unique : false });
+			store.createIndex("posIdx", "pos", { unique : false });
+			store.createIndex("catIdx", "cat", { unique : false });
 			store.createIndex("companyIdx", "company", { unique : false });
 			store.createIndex("departIdx", "depart", { unique : false });
 			store.createIndex("teamIdx", "team", { unique : false });
 			store.createIndex("positIdx", "posit", { unique : false });
-			store.createIndex('typecomIdx', ['type', 'company', 'depart', 'team' ]);
+			store.createIndex('poscatIdx', ['cat', 'pos']);
+			store.createIndex('catcomIdx', ['cat', 'company', 'depart', 'team' ]);
 		
 			var index = store.createIndex("keyIndex", id);
 		}
@@ -73,7 +75,7 @@ var IndexedDB = {
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var store = tx.objectStore(IndexedDB.schemaName).index("typecomIdx");
+			var store = tx.objectStore(IndexedDB.schemaName).index("catcomIdx");
 			//var store = tx.objectStore(IndexedDB.schemaName).index("keyIndex");
 		
 			if ('getAll' in store) {
@@ -235,7 +237,7 @@ var IndexedDB = {
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").openCursor(null, 'prev');
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("catIdx").openCursor(null, 'prev');
 			var last = null;
 			cursor.onsuccess = function (event) {
 				var req = cursor.result;
@@ -258,7 +260,7 @@ var IndexedDB = {
 		}
 	},
 
-	selectType : function( txt, callback ) {
+	selectCat : function( txt, callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
 		var datas = [];
@@ -266,8 +268,8 @@ var IndexedDB = {
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").getAll( txt );
-			// var cursor = tx.objectStore(IndexedDB.schemaName).index("typeIdx").getAll( txt );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("catIdx").getAll( txt );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("catIdx").getAll( txt );
 			
 			cursor.onsuccess = function (event) {
 				datas = cursor.result;
