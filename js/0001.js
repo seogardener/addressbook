@@ -21,7 +21,8 @@ document.getElementById("b_insert").addEventListener("click", function(){
 		phone:a_phone.value, 
 		cell:a_cell.value, 
 		email:a_email.value, 
-		etc:a_etc.value
+		etc:a_etc.value,
+		pos:a_pos.value
 	}
     IndexedDB.insert(event,function(data){
 		dashboard.innerHTML	= "";
@@ -48,7 +49,8 @@ document.getElementById("b_list").addEventListener("click", function(){
 				+ data[i].phone + "</td><td>" 
 				+ data[i].cell + "</td><td>" 
 				+ data[i].email + "</td><td>" 
-				+ data[i].etc + "</td></tr>";
+				+ data[i].etc + "</td><td>"
+				+ data[i].pos + "</td></tr>";
 		}
 	});
 });
@@ -69,7 +71,6 @@ document.getElementById("b_backup").addEventListener("click", function(){
 		}
 	});
 });
-
 
 function deleteOne(id){
 	IndexedDB.delete( id, function(data){
@@ -99,6 +100,7 @@ function select(id){
 		a_cell.value = data.cell;
 		a_email.value = data.email;
 		a_etc.value = data.etc;
+		a_pos.value = data.pos;
 	});
 };
 	
@@ -120,7 +122,8 @@ document.getElementById("b_modify").addEventListener("click", function(){
 		phone:a_phone.value, 
 		cell:a_cell.value, 
 		email:a_email.value, 
-		etc:a_etc.value
+		etc:a_etc.value,
+		pos:a_pos.value
 	}
 	console.log( event );
     IndexedDB.insert(event,function(data){
@@ -131,10 +134,12 @@ document.getElementById("b_modify").addEventListener("click", function(){
     });
 });
 
-document.getElementById("b_max").addEventListener("click", function(){
-	dashboard.innerHTML	= "";
-    IndexedDB.selectMaxValue("keyIndex",function(data){
-  		dashboard.innerHTML = JSON.stringify(data) + "<br>";
+document.getElementById("b_catmax").addEventListener("click", function(){
+	var max = 0;
+	var max_id = null;
+	dashboard.innerHTML	= a_catmax.value + " 최대 값 : ";
+    IndexedDB.getCatMaxValue( a_catmax.value ,function(data){
+  		dashboard.innerHTML += ( data - 1 ) + " , 다음 값 : " + data + " <br>";
    		dashboard.innerHTML += "최댓값 조회 완료";
     });
 });
@@ -145,20 +150,34 @@ document.getElementById("b_search").addEventListener("click", function(){
 
     IndexedDB.searchStr(a_search.value ,function(data){
 		for(var i = 0, lng = data.length ; i < lng ; i ++){
-			addrBox.innerHTML += "<tr draggable='true'>"
-				+ "<td>" + data[i].id + "</td>"
-				+ "<td>" + data[i].cat + "</td>"
-				+ "<td>" + data[i].company + "</td>"
-				+ "<td>" + data[i].depart + "</td>"
-				+ "<td>" + data[i].team + "</td>"
-				+ "<td>" + data[i].posit + "</td>"
-				+ "<td>" + data[i].name + "</td>"
-				+ "<td>" + data[i].job + "</td>"
-				+ "<td>" + data[i].phone + "</td>"
-				+ "<td>" + data[i].cell + "</td>"
-				+ "<td>" + data[i].email + "</td>"
-				+ "<td>" + data[i].etc + "</td></tr>";
+			addrBox.innerHTML += "<tr draggable='true'><td>" 
+				+ data[i].id + "</td><td>" 
+				+ data[i].cat + "</td><td>" 
+				+ data[i].company + "</td><td>" 
+				+ data[i].depart + "</td><td>" 
+				+ data[i].team + "</td><td>" 
+				+ data[i].posit + "</td><td>" 
+				+ data[i].name + "</td><td>" 
+				+ data[i].job + "</td><td>" 
+				+ data[i].phone + "</td><td>" 
+				+ data[i].cell + "</td><td>" 
+				+ data[i].email + "</td><td>" 
+				+ data[i].etc + "</td><td>"
+				+ data[i].pos + "</td></tr>";
 		}
+    });
+});
+
+document.getElementById("b_getOne").addEventListener("click", function(){
+	dashboard.innerHTML	= "찾는 값 : " + a_getOne.value + "<br> 결과 : ";
+
+	// available index name : phoneIdx, cellIdx, emailIdx
+    IndexedDB.getOne(a_getOne.value, "cellIdx", function(data){
+		var lng = data.length;
+		if( lng == 0 ) {
+			alert( "전화번호(" + a_getOne.value + ")가 없습니다. \r\n확인 후 다시 시도해 주세요." );
+		}
+		dashboard.innerHTML += JSON.stringify(data[0]);
     });
 });
 
@@ -181,19 +200,20 @@ function selectCatData( txt ) {
 
     IndexedDB.selectCat( txt, function(data) {
 		for(var i = 0, lng = data.length ; i < lng ; i ++){
-			addrBox.innerHTML += "<tr draggable='true'>"
-				+ "<td>" + data[i].id + "</td>"
-				+ "<td>" + data[i].cat + "</td>"
-				+ "<td>" + data[i].company + "</td>"
-				+ "<td>" + data[i].depart + "</td>"
-				+ "<td>" + data[i].team + "</td>"
-				+ "<td>" + data[i].posit + "</td>"
-				+ "<td>" + data[i].name + "</td>"
-				+ "<td>" + data[i].job + "</td>"
-				+ "<td>" + data[i].phone + "</td>"
-				+ "<td>" + data[i].cell + "</td>"
-				+ "<td>" + data[i].email + "</td>"
-				+ "<td>" + data[i].etc + "</td></tr>";
+			addrBox.innerHTML += "<tr draggable='true'><td>" 
+				+ data[i].id + "</td><td>" 
+				+ data[i].cat + "</td><td>" 
+				+ data[i].company + "</td><td>" 
+				+ data[i].depart + "</td><td>" 
+				+ data[i].team + "</td><td>" 
+				+ data[i].posit + "</td><td>" 
+				+ data[i].name + "</td><td>" 
+				+ data[i].job + "</td><td>" 
+				+ data[i].phone + "</td><td>" 
+				+ data[i].cell + "</td><td>" 
+				+ data[i].email + "</td><td>" 
+				+ data[i].etc + "</td><td>"
+				+ data[i].pos + "</td></tr>";
 		}
     });
 }
@@ -231,6 +251,7 @@ document.getElementById("b_genData").addEventListener("click", function(){
 		a_cell.value = "010-0000-" + val;
 		a_email.value = val + "@gmail.com";
 		a_etc.value = val;
+		a_pos.value = i;
 		
 		val = Math.floor(1000 + Math.random() * 9000);
 		clickButton.click();
@@ -250,23 +271,6 @@ document.getElementById("b_db_delete").addEventListener("click", function(){
 	catDisplay();
 	//databaseExists();
 });
-
-//function databaseExists() {
-//	var data = false;
-//	dashboard.innerHTML	= "";
-//	IndexedDB.databaseExists ( function(data){
-//		if(data == true){
-//			console.log( "DB가 존재합니다." );
-//			b_db_create.disabled = true;
-//			b_db_delete.disabled = false;
-//		} else {
-//			console.log( "DB가 없습니다." );
-//			b_db_create.disabled = false;
-//			b_db_delete.disabled = true;
-//			
-//		}
-//	});
-//}
 
 /* File Control Zone */
 
@@ -374,30 +378,78 @@ document.addEventListener("drop", function( event ) {
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
 
-		var precat = dragged.childNodes[1].innerHTML;
-		var postcat = event.target.innerText;
-		if( precat != postcat ) {
+		var okflag = false;
+		var selObj = null;
+		var phone = dragged.childNodes[8].innerHTML;
+		var cell = dragged.childNodes[9].innerHTML;
+		var email = dragged.childNodes[10].innerHTML;
+		
+		// searching Phone Number
+		if( phone.length > 8 ) {
+			// available index name : phoneIdx, cellIdx, emailIdx
+			IndexedDB.getOne(phone, "phoneIdx", function(data){
+				if( data.length == 0 ) {
+					console.log( "등록된 전화번호(" + phone + ")가 없습니다." );
+				} else {
+					console.log( "등록된 전화번호(" + phone + ")가 있습니다." );
+					selObj = data[0];
+					okflag = true;
+				}
+			});
+		}
+		// searching Cell Phone Number
+		if( okflag == false && cell.length > 8 ) {
+			// available index name : phoneIdx, cellIdx, emailIdx
+			IndexedDB.getOne(cell, "cellIdx", function(data){
+				if( data.length == 0 ) {
+					console.log( "등록된 휴대전화번호(" + cell + ")가 없습니다." );
+				} else {
+					console.log( "등록된 휴대전화번호(" + cell + ")가 있습니다." );
+					selObj = data[0];
+					okflag = true;
+				}
+			});
+		}
+		// searching eMail address
+		if( okflag == false && email.length > 8 ) {
+			// available index name : phoneIdx, cellIdx, emailIdx
+			IndexedDB.getOne(email, "emailIdx", function(data){
+				if( data.length == 0 ) {
+					console.log( "등록된 eMail 주소(" + email + ")가 없습니다" );
+				} else {
+					console.log( "등록된 eMail 주소(" + email + ")가 있습니다" );
+					selObj = data[0];
+					okflag = true;
+				}
+			});
+		}
+		
+		if( okflag == true ) {
+			var precat = dragged.childNodes[1].innerHTML;
+			var postcat = event.target.innerText;
+			var nextPos = 0;
 			
-			var selObj = {
-				id:Number.parseInt( dragged.childNodes[0].innerHTML ),
-				cat:dragged.childNodes[1].innerHTML,
-				company:dragged.childNodes[2].innerHTML,
-				depart:dragged.childNodes[3].innerHTML, 
-				team:dragged.childNodes[4].innerHTML, 
-				posit:dragged.childNodes[5].innerHTML, 
-				name:dragged.childNodes[6].innerHTML, 
-				job:dragged.childNodes[7].innerHTML, 
-				phone:dragged.childNodes[8].innerHTML, 
-				cell:dragged.childNodes[9].innerHTML, 
-				email:dragged.childNodes[10].innerHTML, 
-				etc:dragged.childNodes[11].innerHTML
+			// Moving Same Category
+			if( precat == postcat ) {
+				// position 변경
+				
+				
+			// Moving Deffent Catebory
+			} else {
+				// Change Category & Position Number
+				IndexedDB.getCatMaxValue( postcat ,function(data){
+					nextPos = parseInt( data );
+				});
+				selObj.cat = postcat;
+				selObj.pos = nextPos;
 			}
 			
 			dragged.parentNode.removeChild( dragged );
-			selObj.cat = postcat;
 			IndexedDB.insert(selObj,function(data){
-				if(selObj == 1){
-					console.log ( "id:" + data.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
+				if( data == true ) {
+					console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
+				} else {
+					console.log( "이동 중 오류가 발생하였습니다." );
 				}
 			});
 		}
@@ -450,4 +502,72 @@ function genDatalists(){
 			}	
 		}
     });
+	
+// document.getElementById("b_max").addEventListener("click", function(){
+// 	dashboard.innerHTML	= "";
+//     IndexedDB.selectMaxValue("keyIndex",function(data){
+//   		dashboard.innerHTML = JSON.stringify(data) + "<br>";
+//    		dashboard.innerHTML += "최댓값 조회 완료";
+//     });
+// });
+
+
+// document.addEventListener("drop", function( event ) {
+// 	// prevent default action (open as link for some elements)
+// 	event.preventDefault();
+// 
+// 	// move dragged elem to the selected drop target
+// 	if ( event.target.className == "dropzone" ) {
+// 		event.target.style.background = "";
+// 
+// 		var precat = dragged.childNodes[1].innerHTML;
+// 		var postcat = event.target.innerText;
+// 		if( precat != postcat ) {
+// 			
+// 			var selObj = {
+// 				id:Number.parseInt( dragged.childNodes[0].innerHTML ),
+// 				cat:dragged.childNodes[1].innerHTML,
+// 				company:dragged.childNodes[2].innerHTML,
+// 				depart:dragged.childNodes[3].innerHTML, 
+// 				team:dragged.childNodes[4].innerHTML, 
+// 				posit:dragged.childNodes[5].innerHTML, 
+// 				name:dragged.childNodes[6].innerHTML, 
+// 				job:dragged.childNodes[7].innerHTML, 
+// 				phone:dragged.childNodes[8].innerHTML, 
+// 				cell:dragged.childNodes[9].innerHTML, 
+// 				email:dragged.childNodes[10].innerHTML, 
+// 				etc:dragged.childNodes[11].innerHTML,
+// 				pos:dragged.childNodes[12].innerHTML		// 순번 계산을 옴겨지는 Category의 마지막 번호로 기입
+// 			}
+// 			
+// 			dragged.parentNode.removeChild( dragged );
+// 			selObj.cat = postcat;
+// 			IndexedDB.insert(selObj,function(data){
+// 				if(selObj == 1){
+// 					console.log ( "id:" + data.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
+// 				}
+// 			});
+// 		}
+// 	}
+// }, false);
+
+//function databaseExists() {
+//	var data = false;
+//	dashboard.innerHTML	= "";
+//	IndexedDB.databaseExists ( function(data){
+//		if(data == true){
+//			console.log( "DB가 존재합니다." );
+//			b_db_create.disabled = true;
+//			b_db_delete.disabled = false;
+//		} else {
+//			console.log( "DB가 없습니다." );
+//			b_db_create.disabled = false;
+//			b_db_delete.disabled = true;
+//			
+//		}
+//	});
+//}
+
+
+
 }

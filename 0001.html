@@ -52,6 +52,9 @@ tr:nth-child(odd) {
 .addrlist tr *:nth-child(1) {
     display: none;
 }
+.addrlist tr *:nth-child(2) {
+    display: none;
+}
 </style>
 </head>
 <body>
@@ -76,14 +79,15 @@ tr:nth-child(odd) {
 		<br>
 		<label for="a_email">e-Mail</label> <input id="a_email" type="text">
 		<label for="a_etc">기타</label>     <input id="a_etc"   type="text">
+		<label for="a_pos">순번</label>     <input id="a_pos"   type="text">
 		<br>
 		<button id="b_insert">등록</button>
 		<button id="b_modify">수정</button>
 		<button id="b_list">목록</button>
-		<button id="b_max">id 최대값</button>
-		<input  id="a_search" type="text">
-		<button id="b_search">조회</button>
+		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"><button id="b_catmax">최대값</button>
+		<input  id="a_search" type="text" placeholder="조회 문자 입력"><button id="b_search">조회</button>
 		<button id="b_genData">데이터 생성</button>
+		<input  id="a_getOne" type="text" value="02-000-4903"><button id="b_getOne">조회</button>
 	</fieldset>
 	<fieldset>
 		<legend>설정</legend>

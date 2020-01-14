@@ -35,6 +35,9 @@ var IndexedDB = {
 			store.createIndex("departIdx", "depart", { unique : false });
 			store.createIndex("teamIdx", "team", { unique : false });
 			store.createIndex("positIdx", "posit", { unique : false });
+			store.createIndex("phoneIdx", "phone", { unique : true });
+			store.createIndex("cellIdx", "cell", { unique : true });
+			store.createIndex("emailIdx", "email", { unique : true });
 			store.createIndex('poscatIdx', ['cat', 'pos']);
 			store.createIndex('catcomIdx', ['cat', 'company', 'depart', 'team' ]);
 		
@@ -55,14 +58,8 @@ var IndexedDB = {
 				callback(data.result);
 			}
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				console.log( "연결 종료") ;
 				db.close();
-			};
-			tx.onabort  = function(){
-				console.log( "트랜잭션이 취소" );
-			};
-			tx.onerror = function(){
-				console.log( "트랜잭션이 실패" );
 			};
 		}
 		
@@ -70,6 +67,32 @@ var IndexedDB = {
 			callback(event);
 		}
 	},
+
+	getOne: function (data, idx, callback) {
+		return new Promise( function( resolve, reject ) {
+			var database = getConnection();
+			
+			database.onsuccess = function () {
+				var db = database.result;
+				var tx = db.transaction(IndexedDB.schemaName, "readonly");
+				var keyRange = IDBKeyRange.only( data );
+				var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
+	
+				cursor.onsuccess = function (event) {
+					callback(cursor.result);
+				};
+				tx.oncomplete = function () {
+					console.log( "연결 종료") ;
+					db.close();
+					resolve(true);
+				};
+			}
+			database.onerror = function (event) {
+				callback(event);
+			}
+		});
+	},
+
 	selectAll: function (callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
@@ -110,33 +133,41 @@ var IndexedDB = {
 		}
 	},
 
-	selectMaxValue: function (indexName, callback) {
+	getCatMaxValue: function (catName, callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var store = tx.objectStore(IndexedDB.schemaName);
-			var index = store.index(indexName);
-			var cursor = index.openCursor(null, 'prev');
+			//var store = tx.objectStore(IndexedDB.schemaName);
+			//var index = store.index("poscatIdx");
+			//var cursor = index.openCursor(range, 'prev');
 			var obj = null;
-		
+			var last  = null;
+			var data = null;
+			var max = 0;
+
+			var keyRange = IDBKeyRange.bound( [catName, 0], [catName, 999999999] );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
+
 			cursor.onsuccess = function (event) {
-				console.log( "Indexed DB 작업 성공") ;
-				if (event.target.result) {
-					obj = event.target.result.value; //the object with max revision
+				var lng = data.length;
+				data = cursor.result;
+				
+				if( lng == 0 ) {
+					console.log("No Record.");
+				} else {
+					for(var i = 0 ; i < lng ; i ++){
+						if( data[i].pos > max ) {
+							max = data[i].pos;
+						}
+					}
+					max++;
 				}
 			};
-		
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				console.log( "연결 종료") ;
 				db.close();
-				callback(obj);
-			};
-			tx.onabort  = function(){
-				console.log( "트랜잭션이 취소" );
-			};
-			tx.onerror = function(){
-				console.log( "트랜잭션이 실패" );
+				callback(max);
 			};
 		}
 		database.onerror = function (event) {
@@ -156,14 +187,16 @@ var IndexedDB = {
 			tx.oncomplete = function () {
 				console.log( "트랜잭션이 종료") ;
 				db.close();
+				callback(true);
 			};
 			tx.onabort  = function(){
 				console.log( "트랜잭션이 취소" );
+				callback(false);
 			};
 			tx.onerror = function(){
 				console.log( "트랜잭션이 실패" );
+				callback(false);
 			};
-			callback(1);
 		}
 		
 		database.onerror = function (event) {
@@ -268,9 +301,29 @@ var IndexedDB = {
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("catIdx").getAll( txt );
-			// var cursor = tx.objectStore(IndexedDB.schemaName).index("catIdx").getAll( txt );
-			
+
+			// select * from AddressDB where cat = "본사" order by pos;
+			var keyRange = IDBKeyRange.bound( [txt, 0], [txt, 999999999] );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
+
+			//var keyRange = IDBKeyRange.lowerBound( [txt, '0'] );
+			//var keyRange = IDBKeyRange.upperBound( [txt, '0'] );
+			// var keyRange = IDBKeyRange.bound( [txt, '0'], [txt, '999999'] );
+			//var keyRange = IDBKeyRange.only( [txt, undefined] );
+			// var keyRange = IDBKeyRange.bound( [txt, '0'], [txt, '999999'] );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( [ txt, IDBKeyRange.lowerBound('0') ] );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll(  );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").get( ["본사,1"] );
+			// var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").openCursor( );
+
+/**
+			var keyRange = IDBKeyRange.bound( [txt, '0'], [txt, '999999'] );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
+
+			var keyRange = IDBKeyRange.bound( [txt, '1'], [txt, '2'] );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
+*/
 			cursor.onsuccess = function (event) {
 				datas = cursor.result;
 			};
@@ -282,19 +335,6 @@ var IndexedDB = {
 		}
 	},
 	
-//	databaseExists : function( callback ) {
-//		var database = this.getConnection();
-//		var dbExists = false;
-//		database.onsuccess  = function (event){
-//			database.result.close();
-//			dbExists = true;
-//			callback(dbExists);
-//		}
-//		database.onerror = function (event) {
-//			callback(dbExists);
-//		}
-//	},
-
 	deleteAll: function ( callback ) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
@@ -324,7 +364,6 @@ var IndexedDB = {
 	 GetUniqueValue : function( idx, callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
-		console.log( idx );
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
@@ -352,4 +391,52 @@ var IndexedDB = {
 	},
 
 };
+
+
+//	selectMaxValue: function (indexName, callback) {
+//		var database = this.getConnection();
+//		database.onsuccess = function () {
+//			var db = database.result;
+//			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+//			var store = tx.objectStore(IndexedDB.schemaName);
+//			var index = store.index(indexName);
+//			var cursor = index.openCursor(null, 'prev');
+//			var obj = null;
+//		
+//			cursor.onsuccess = function (event) {
+//				console.log( "Indexed DB 작업 성공") ;
+//				if (event.target.result) {
+//					obj = event.target.result.value; //the object with max revision
+//				}
+//			};
+//		
+//			tx.oncomplete = function () {
+//				console.log( "트랜잭션이 종료") ;
+//				db.close();
+//				callback(obj);
+//			};
+//			tx.onabort  = function(){
+//				console.log( "트랜잭션이 취소" );
+//			};
+//			tx.onerror = function(){
+//				console.log( "트랜잭션이 실패" );
+//			};
+//		}
+//		database.onerror = function (event) {
+//			callback(event);
+//		}
+//	},
+
+//	databaseExists : function( callback ) {
+//		var database = this.getConnection();
+//		var dbExists = false;
+//		database.onsuccess  = function (event){
+//			database.result.close();
+//			dbExists = true;
+//			callback(dbExists);
+//		}
+//		database.onerror = function (event) {
+//			callback(dbExists);
+//		}
+//	},
 
