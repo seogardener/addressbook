@@ -378,81 +378,60 @@ document.addEventListener("drop", function( event ) {
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
 
-		var okflag = false;
-		var selObj = null;
-		var phone = dragged.childNodes[8].innerHTML;
-		var cell = dragged.childNodes[9].innerHTML;
-		var email = dragged.childNodes[10].innerHTML;
+		var id	= parseInt( dragged.childNodes[0].innerHTML );
+		var _promise = function () {
+			return new Promise(function(resolve, reject) {
+				IndexedDB.selectId(id, function(data){
+					if( data.length == 0 ) {
+						console.log( "등록된 ID(" + id + ")가 없습니다." );
+						reject(Error("It broke"));
+					} else {
+						console.log( "등록된 ID(" + id + ")가 있습니다." );
+						resolve(data);
+					}
+				});
+			});
+		};
 		
-		// searching Phone Number
-		if( phone.length > 8 ) {
-			// available index name : phoneIdx, cellIdx, emailIdx
-			IndexedDB.getOne(phone, "phoneIdx", function(data){
-				if( data.length == 0 ) {
-					console.log( "등록된 전화번호(" + phone + ")가 없습니다." );
-				} else {
-					console.log( "등록된 전화번호(" + phone + ")가 있습니다." );
-					selObj = data[0];
-					okflag = true;
-				}
-			});
-		}
-		// searching Cell Phone Number
-		if( okflag == false && cell.length > 8 ) {
-			// available index name : phoneIdx, cellIdx, emailIdx
-			IndexedDB.getOne(cell, "cellIdx", function(data){
-				if( data.length == 0 ) {
-					console.log( "등록된 휴대전화번호(" + cell + ")가 없습니다." );
-				} else {
-					console.log( "등록된 휴대전화번호(" + cell + ")가 있습니다." );
-					selObj = data[0];
-					okflag = true;
-				}
-			});
-		}
-		// searching eMail address
-		if( okflag == false && email.length > 8 ) {
-			// available index name : phoneIdx, cellIdx, emailIdx
-			IndexedDB.getOne(email, "emailIdx", function(data){
-				if( data.length == 0 ) {
-					console.log( "등록된 eMail 주소(" + email + ")가 없습니다" );
-				} else {
-					console.log( "등록된 eMail 주소(" + email + ")가 있습니다" );
-					selObj = data[0];
-					okflag = true;
-				}
-			});
-		}
-		
-		if( okflag == true ) {
+		_promise().then(function (data) {
 			var precat = dragged.childNodes[1].innerHTML;
 			var postcat = event.target.innerText;
-			var nextPos = 0;
+			//var nextPos = 0;
 			
 			// Moving Same Category
 			if( precat == postcat ) {
-				// position 변경
+console.log(precat + "==" + postcat);
+				// Same Category --> Change position number
 				
 				
 			// Moving Deffent Catebory
 			} else {
-				// Change Category & Position Number
-				IndexedDB.getCatMaxValue( postcat ,function(data){
-					nextPos = parseInt( data );
+				// diffent Category --> Change Category & Position Number
+				var _promise2 = function () {
+					return new Promise(function(resolve, reject) {
+						IndexedDB.getCatMaxValue( postcat ,function(data){
+							resolve(parseInt( data ));
+						});
+					});
+				};
+				_promise2().then(function (nextPos) {
+					data.cat = postcat;
+					data.pos = nextPos;
+					
+					dragged.parentNode.removeChild( dragged );
+					IndexedDB.insert(data,function(data){
+						if( data == true ) {
+							console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
+						} else {
+							console.log( "이동 중 오류가 발생하였습니다." );
+						}
+					});
 				});
-				selObj.cat = postcat;
-				selObj.pos = nextPos;
 			}
-			
-			dragged.parentNode.removeChild( dragged );
-			IndexedDB.insert(selObj,function(data){
-				if( data == true ) {
-					console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
-				} else {
-					console.log( "이동 중 오류가 발생하였습니다." );
-				}
-			});
-		}
+		}, function (error) {
+			// 실패시 
+			console.error(error);
+		});
 	}
 }, false);
 

@@ -51,10 +51,10 @@ var IndexedDB = {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
 			var store = tx.objectStore(IndexedDB.schemaName);
-		
+
 			var data = store.get(id);
-		
 			data.onsuccess = function () {
+				console.log( data.result );
 				callback(data.result);
 			}
 			tx.oncomplete = function () {
@@ -68,30 +68,70 @@ var IndexedDB = {
 		}
 	},
 
-	getOne: function (data, idx, callback) {
-		return new Promise( function( resolve, reject ) {
-			var database = getConnection();
-			
-			database.onsuccess = function () {
-				var db = database.result;
-				var tx = db.transaction(IndexedDB.schemaName, "readonly");
-				var keyRange = IDBKeyRange.only( data );
-				var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
-	
-				cursor.onsuccess = function (event) {
-					callback(cursor.result);
-				};
-				tx.oncomplete = function () {
-					console.log( "연결 종료") ;
-					db.close();
-					resolve(true);
-				};
-			}
-			database.onerror = function (event) {
-				callback(event);
-			}
-		});
+	selectId: function (id, callback) {
+		var database = this.getConnection();
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+			var keyRange = IDBKeyRange.only( id );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("keyIndex").get( keyRange );
+
+			cursor.onsuccess = function (event) {
+				callback(cursor.result);
+			};
+			tx.oncomplete = function () {
+				console.log( "연결 종료") ;
+				db.close();
+			};
+		}
+		database.onerror = function (event) {
+			callback(event);
+		}
 	},
+
+	getOne: function (data, idx, callback) {
+		var database = this.getConnection();
+		
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+			var keyRange = IDBKeyRange.only( data );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
+
+			cursor.onsuccess = function (event) {
+				callback(cursor.result);
+			};
+			tx.oncomplete = function () {
+				console.log( "연결 종료") ;
+				db.close();
+			};
+		}
+		database.onerror = function (event) {
+			callback(event);
+		}
+	},
+
+//	getOne: function (data, idx, callback) {
+//		var database = this.getConnection();
+//		
+//		database.onsuccess = function () {
+//			var db = database.result;
+//			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+//			var keyRange = IDBKeyRange.only( data );
+//			var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
+//
+//			cursor.onsuccess = function (event) {
+//				callback(cursor.result);
+//			};
+//			tx.oncomplete = function () {
+//				console.log( "연결 종료") ;
+//				db.close();
+//			};
+//		}
+//		database.onerror = function (event) {
+//			callback(event);
+//		}
+//	},
 
 	selectAll: function (callback) {
 		var database = this.getConnection();
@@ -150,8 +190,8 @@ var IndexedDB = {
 			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
 
 			cursor.onsuccess = function (event) {
-				var lng = data.length;
 				data = cursor.result;
+				var lng = data.length;
 				
 				if( lng == 0 ) {
 					console.log("No Record.");
@@ -438,5 +478,34 @@ var IndexedDB = {
 //		database.onerror = function (event) {
 //			callback(dbExists);
 //		}
+//	},
+
+//	getOne: function (data, idx) {
+//		return new Promise( function( resolve, reject ) {
+//			
+//		//var database = this.getConnection();
+//		
+//			database.onsuccess = function () {
+//				var db = database.result;
+//				var tx = db.transaction(IndexedDB.schemaName, "readonly");
+//				var keyRange = IDBKeyRange.only( data );
+//				var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
+//	
+//				cursor.onsuccess = function (event) {
+//					resolve(cursor.result);
+//				};
+////				tx.oncomplete = function () {
+////					console.log( "연결 종료") ;
+////					db.close();
+////					//resolve(cursor.result);
+////				};
+//				cursor.onerror = function() {
+//					reject(true);
+//				};
+//			}
+////			database.onerror = function (event) {
+////				reject(true);
+////			}
+//		});
 //	},
 
