@@ -374,38 +374,30 @@ document.addEventListener("drop", function( event ) {
 	// prevent default action (open as link for some elements)
 	event.preventDefault();
 
+	var precat	= dragged.childNodes[1].innerHTML;
+	var postcat	= event.target.innerText;
+	var id		= parseInt( dragged.childNodes[0].innerHTML );
+
 	// move dragged elem to the selected drop target
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
 
-		var id	= parseInt( dragged.childNodes[0].innerHTML );
-		var _promise = function () {
-			return new Promise(function(resolve, reject) {
-				IndexedDB.selectId(id, function(data){
-					if( data.length == 0 ) {
-						console.log( "등록된 ID(" + id + ")가 없습니다." );
-						reject(Error("It broke"));
-					} else {
-						console.log( "등록된 ID(" + id + ")가 있습니다." );
-						resolve(data);
-					}
+		if( precat != postcat ) {
+			var _promise = function () {
+				return new Promise(function(resolve, reject) {
+					IndexedDB.selectId(id, function(data){
+						if( data.length == 0 ) {
+							reject(Error("It broke"));
+						} else {
+							resolve(data);
+						}
+					});
 				});
-			});
-		};
-		
-		_promise().then(function (data) {
-			var precat = dragged.childNodes[1].innerHTML;
-			var postcat = event.target.innerText;
-			//var nextPos = 0;
+			};
 			
-			// Moving Same Category
-			if( precat == postcat ) {
-console.log(precat + "==" + postcat);
-				// Same Category --> Change position number
+			_promise().then(function (data) {
+				//var nextPos = 0;
 				
-				
-			// Moving Deffent Catebory
-			} else {
 				// diffent Category --> Change Category & Position Number
 				var _promise2 = function () {
 					return new Promise(function(resolve, reject) {
@@ -427,11 +419,112 @@ console.log(precat + "==" + postcat);
 						}
 					});
 				});
+			}, function (error) {
+				// 실패시 
+				console.error(error);
+			});
+		}
+	} else if( event.target.parentNode.parentNode.id == "addrBox" ) {
+		var newpin	= event.target.parentNode;
+		var newid	= parseInt( newpin.childNodes[0].innerHTML );
+		var oldpos	= parseInt( dragged.childNodes[12].innerHTML );
+		var newpos	= parseInt( newpin.childNodes[12].innerHTML );
+		var start	= 0;
+		var end		= 0;
+		
+		event.target.parentNode.parentNode.appendChild( dragged );
+		//dragged.parentNode.removeChild( dragged );
+
+		if( oldpos > newpos ) {
+			start	= newpos;
+			end		= oldpos;
+		} else {
+			start	= oldpos;
+			end		= newpos;
+		}
+
+		var _promise = function () {
+			return new Promise(function(resolve, reject) {
+				IndexedDB.getPosInRange(precat, start, end, function(data){
+					resolve( data );
+				});
+			});	
+		};
+		_promise().then(function (data) {
+			if( oldpos > newpos ) {
+				for( var i = 0 , lng = data.length ; i < lng ; i++ ){
+					data[i].pos	+= 1;
+					if( data[i].id == id ) {
+						data[i].pos	= newpos;
+					}
+				}
+			} else {
+				for( var i = 0 , lng = data.length ; i < lng ; i++ ){
+					data[i].pos	-= 1;
+					if( data[i].id == id ) {
+						data[i].pos	= newpos;
+					}
+				}
 			}
-		}, function (error) {
-			// 실패시 
-			console.error(error);
+			
+			for( var i = 0 , lng = data.length ; i < lng ; i++ ){
+				IndexedDB.insert(data[i],function(rdata){
+					if(rdata == 1){
+						console.log( "Data 추가 중 ... [" + i + "/" + lng + "]" );
+					}
+				});
+			}
+
 		});
+/**
+		console.log(event.target.parentNode.parentNode.id);
+		console.log("oldpos = " + id + "/" +  dragged.childNodes[5].innerHTML );
+		console.log("newpos = " + newpin.childNodes[0].innerHTML  + "/" +  newpin.childNodes[5].innerHTML);
+		console.log("oldpos = " + dragged.textContent );
+		console.log("newpos = " + newpin.textContent);
+**/
+/**
+
+순서를 위로 올린다.
+newpos posi = 5
+oldpos posi = 10
+
+posi(5)인 record 부터 posi(10)인 record 이전까지 모든 record의 posi에 +1 
+posi(10)이 record를 5로 변경
+
+
+oldpos posi = 2
+newpos posi = 9
+
+posi(2)인 record 다음 부터 posi(9)인 record 까지 posi의 값을 -1
+posi(2)인 record를 posi 9로 변경
+
+
+
+var oldpos = data.pos;
+var newpos = event.target.appendChild( dragged );
+BEGIN TRANSACTION
+  -- 선택된 id의 위치를 저장 oldpos=3
+  SELECT @oldpos = Pos FROM Table WHERE id = @id;
+  
+  -- 선택된 줄의 위치를 기준으로 위로 올간 경우(순번이 빨라진 경우) 6 < 3
+  IF @newpos < @oldpos 
+    -- 
+    UPDATE #Table SET Pos = Pos + 1 
+      WHERE Pos >= @newpos AND Pos < @oldpos;
+	 
+  -- 선택된 줄의 위치를 기준으로 밑으로 내려간 경우 (순번이 뒤로 밀린 경우 ) 6 < 3
+  ELSE
+    -- 기준 위치보다 순번이 크고, 옴겨질 위치 큰 모든 Pos 값에 1을 감한다.
+    UPDATE #Table SET Pos = Pos - 1 
+      WHERE Pos <= @newpos AND Pos > @oldpos;        Pos >= 6 AND Pos > 3
+
+  UPDATE #Table SET Pos = @newpos
+   WHERE Id = @id;
+COMMIT TRANSACTION
+
+**/
+
 	}
 }, false);
 
@@ -481,7 +574,8 @@ function genDatalists(){
 			}	
 		}
     });
-	
+}
+
 // document.getElementById("b_max").addEventListener("click", function(){
 // 	dashboard.innerHTML	= "";
 //     IndexedDB.selectMaxValue("keyIndex",function(data){
@@ -548,5 +642,3 @@ function genDatalists(){
 //}
 
 
-
-}

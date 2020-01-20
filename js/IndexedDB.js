@@ -111,28 +111,6 @@ var IndexedDB = {
 		}
 	},
 
-//	getOne: function (data, idx, callback) {
-//		var database = this.getConnection();
-//		
-//		database.onsuccess = function () {
-//			var db = database.result;
-//			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-//			var keyRange = IDBKeyRange.only( data );
-//			var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
-//
-//			cursor.onsuccess = function (event) {
-//				callback(cursor.result);
-//			};
-//			tx.oncomplete = function () {
-//				console.log( "연결 종료") ;
-//				db.close();
-//			};
-//		}
-//		database.onerror = function (event) {
-//			callback(event);
-//		}
-//	},
-
 	selectAll: function (callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
@@ -374,6 +352,31 @@ var IndexedDB = {
 			};
 		}
 	},
+
+	// 해당 Category(txt)내 주어진 범위의 Position값을 갖는 Record들을 출력
+	getPosInRange : function( txt, start, end, callback ) {
+		var database = this.getConnection();
+		var dupes = new Map();
+		var datas = [];
+
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+
+			// select * from AddressDB where cat = "본사" order by pos;
+			var keyRange = IDBKeyRange.bound( [txt, start], [txt, end] );
+			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
+
+			cursor.onsuccess = function (event) {
+				datas = cursor.result;
+			};
+			tx.oncomplete = function () {
+				console.log( "트랜잭션이 종료") ;
+				db.close();
+				callback(datas);
+			};
+		}
+	},
 	
 	deleteAll: function ( callback ) {
 		var database = this.getConnection();
@@ -507,5 +510,27 @@ var IndexedDB = {
 ////				reject(true);
 ////			}
 //		});
+//	},
+
+//	getOne: function (data, idx, callback) {
+//		var database = this.getConnection();
+//		
+//		database.onsuccess = function () {
+//			var db = database.result;
+//			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+//			var keyRange = IDBKeyRange.only( data );
+//			var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
+//
+//			cursor.onsuccess = function (event) {
+//				callback(cursor.result);
+//			};
+//			tx.oncomplete = function () {
+//				console.log( "연결 종료") ;
+//				db.close();
+//			};
+//		}
+//		database.onerror = function (event) {
+//			callback(event);
+//		}
 //	},
 
