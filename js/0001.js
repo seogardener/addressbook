@@ -316,6 +316,8 @@ document.getElementById("addrfile").addEventListener("change", function() {
 /* Drag&Drop Zone */
 
 var dragged;
+var oldidx;
+var newidx;
 
 // images-preloader
 (new Image()).src = "img/xofficecontact_103670.png";
@@ -326,6 +328,8 @@ document.addEventListener("drag", function( event ) { }, false);
 document.addEventListener("dragstart", function( event ) {
 	// store a ref. on the dragged elem
 	dragged = event.target;
+	oldidx	= event.target.sectionRowIndex;
+
 	// make it half transparent
 	event.target.style.opacity = 5;
 	event.target.style.border = "1px solid #cccccc";
@@ -424,6 +428,7 @@ document.addEventListener("drop", function( event ) {
 				console.error(error);
 			});
 		}
+	// re-order in same category
 	} else if( event.target.parentNode.parentNode.id == "addrBox" ) {
 		var newpin	= event.target.parentNode;
 		var newid	= parseInt( newpin.childNodes[0].innerHTML );
@@ -432,9 +437,6 @@ document.addEventListener("drop", function( event ) {
 		var start	= 0;
 		var end		= 0;
 		
-		event.target.parentNode.parentNode.appendChild( dragged );
-		//dragged.parentNode.removeChild( dragged );
-
 		if( oldpos > newpos ) {
 			start	= newpos;
 			end		= oldpos;
@@ -466,7 +468,6 @@ document.addEventListener("drop", function( event ) {
 					}
 				}
 			}
-			
 			for( var i = 0 , lng = data.length ; i < lng ; i++ ){
 				IndexedDB.insert(data[i],function(rdata){
 					if(rdata == 1){
@@ -474,57 +475,38 @@ document.addEventListener("drop", function( event ) {
 					}
 				});
 			}
+			
+			// Change Display Table
+			newidx	= event.target.parentNode.sectionRowIndex;
+			listlng	= newpin.parentNode.children.length;
+			var tables = event.target.parentNode.parentNode;
 
+			if( oldidx > newidx ) {		// Pull up
+				start	= newidx;
+				end		= oldidx;
+
+				var sel = tables.childNodes[end].innerHTML
+				var startpos = tables.childNodes[start].childNodes[12].innerHTML
+				for( var i = end ; i > start ; i-- ){
+					tables.childNodes[i].innerHTML = tables.childNodes[i-1].innerHTML
+					tables.childNodes[i].childNodes[12].innerHTML ++;
+				}
+				tables.childNodes[start].innerHTML = sel;
+				tables.childNodes[start].childNodes[12].innerHTML = startpos;
+			} else {	// Pull out
+				start	= oldidx;
+				end		= newidx;
+
+				var sel		= tables.childNodes[start].innerHTML
+				var endpos	= tables.childNodes[end].childNodes[12].innerHTML
+				for( var i = start ; i < end ; i++ ){
+					tables.childNodes[i].innerHTML = tables.childNodes[i+1].innerHTML
+					tables.childNodes[i].childNodes[12].innerHTML --;
+				}
+				tables.childNodes[end].innerHTML = sel;
+				tables.childNodes[end].childNodes[12].innerHTML = endpos;
+			}
 		});
-/**
-		console.log(event.target.parentNode.parentNode.id);
-		console.log("oldpos = " + id + "/" +  dragged.childNodes[5].innerHTML );
-		console.log("newpos = " + newpin.childNodes[0].innerHTML  + "/" +  newpin.childNodes[5].innerHTML);
-		console.log("oldpos = " + dragged.textContent );
-		console.log("newpos = " + newpin.textContent);
-**/
-/**
-
-순서를 위로 올린다.
-newpos posi = 5
-oldpos posi = 10
-
-posi(5)인 record 부터 posi(10)인 record 이전까지 모든 record의 posi에 +1 
-posi(10)이 record를 5로 변경
-
-
-oldpos posi = 2
-newpos posi = 9
-
-posi(2)인 record 다음 부터 posi(9)인 record 까지 posi의 값을 -1
-posi(2)인 record를 posi 9로 변경
-
-
-
-var oldpos = data.pos;
-var newpos = event.target.appendChild( dragged );
-BEGIN TRANSACTION
-  -- 선택된 id의 위치를 저장 oldpos=3
-  SELECT @oldpos = Pos FROM Table WHERE id = @id;
-  
-  -- 선택된 줄의 위치를 기준으로 위로 올간 경우(순번이 빨라진 경우) 6 < 3
-  IF @newpos < @oldpos 
-    -- 
-    UPDATE #Table SET Pos = Pos + 1 
-      WHERE Pos >= @newpos AND Pos < @oldpos;
-	 
-  -- 선택된 줄의 위치를 기준으로 밑으로 내려간 경우 (순번이 뒤로 밀린 경우 ) 6 < 3
-  ELSE
-    -- 기준 위치보다 순번이 크고, 옴겨질 위치 큰 모든 Pos 값에 1을 감한다.
-    UPDATE #Table SET Pos = Pos - 1 
-      WHERE Pos <= @newpos AND Pos > @oldpos;        Pos >= 6 AND Pos > 3
-
-  UPDATE #Table SET Pos = @newpos
-   WHERE Id = @id;
-COMMIT TRANSACTION
-
-**/
-
 	}
 }, false);
 
