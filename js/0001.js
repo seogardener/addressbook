@@ -62,26 +62,6 @@ document.getElementById("b_insert").addEventListener("click", function(){
  * "전체 목록" 버튼 : 전체 Address 목록 표시
  */
 document.getElementById("b_list").addEventListener("click", function(){
-	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
-	// IndexedDB.selectAll( function( data ) {
-	// 	for( var i = 0 , lng = data.length ; i < lng ; i++ ){
-	// 		addrBox.innerHTML += "<tr draggable='true' onclick='select(" + data[i].id + ");'><td>" 
-	// 			+ data[i].id + "</td><td>" 
-	// 			+ data[i].cat + "</td><td>" 
-	// 			+ data[i].company + "</td><td>" 
-	// 			+ data[i].depart + "</td><td>" 
-	// 			+ data[i].team + "</td><td>" 
-	// 			+ data[i].posit + "</td><td>" 
-	// 			+ data[i].name + "</td><td>" 
-	// 			+ data[i].job + "</td><td>" 
-	// 			+ data[i].phone + "</td><td>" 
-	// 			+ data[i].cell + "</td><td>" 
-	// 			+ data[i].email + "</td><td>" 
-	// 			+ data[i].etc + "</td><td>"
-	// 			+ data[i].pos + "</td></tr>";
-	// 	}
-	// });
-
 	pagedList( 1, "ALL" );
 });
 
@@ -120,12 +100,7 @@ function pagedList( curPage, cat ) {
 		totalpost	= 0,
 		start		= ( curPage - 1 ) * cperpage;
 	
-	// var cat		= "";
-	// IndexedDB.countCat( cat, function( data ) {
-	// 	console.log( cat + "==" + data );
-	// });
 	/** 전체 Address 갯수 값을 가져와서 하단 네비게이션 바 생성 */
-
 	console.log( "Category : "  + cat );
 
 	IndexedDB.countCat( cat, function( data ) {
@@ -184,25 +159,6 @@ function pagedList( curPage, cat ) {
 				+ data[i].pos + "</td></tr>";
 		}
 	});
-
-	// IndexedDB.selectAll( function( data ) {
-	// 	for( var i = 0 , lng = data.length ; i < lng ; i++ ){
-	// 		addrBox.innerHTML += "<tr draggable='true' onclick='select(" + data[i].id + ");'><td>" 
-	// 			+ data[i].id + "</td><td>" 
-	// 			+ data[i].cat + "</td><td>" 
-	// 			+ data[i].company + "</td><td>" 
-	// 			+ data[i].depart + "</td><td>" 
-	// 			+ data[i].team + "</td><td>" 
-	// 			+ data[i].posit + "</td><td>" 
-	// 			+ data[i].name + "</td><td>" 
-	// 			+ data[i].job + "</td><td>" 
-	// 			+ data[i].phone + "</td><td>" 
-	// 			+ data[i].cell + "</td><td>" 
-	// 			+ data[i].email + "</td><td>" 
-	// 			+ data[i].etc + "</td><td>"
-	// 			+ data[i].pos + "</td></tr>";
-	// 	}
-	// });
 };
 
 /** 검색어와 매치되는 Address 목록 표시 + Paging */
@@ -362,29 +318,7 @@ document.getElementById("b_catmax").addEventListener("click", function(){
  * Input 창에 있는 내용을 기반으로 검색하여 매치되는 결과를 출력
  */
 document.getElementById("b_search").addEventListener("click", function(){
-	// dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><thead><tr><td>ID</td><td>Category</td><td>Company</td><td>Depart</td><td>Team</td><td>Posit</td><td>Name</td><td>Job</td><td>Phone</td><td>Cell Phone</td><td>E-Mail</td><td>Et.c</td></tr></thead><tbody id='addrBox'></tbody></table><br>";
-//	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
-
 	searchList( 1, a_search.value );
-
-    // IndexedDB.searchStr(a_search.value ,function(data){
-	// 	for(var i = 0, lng = data.length ; i < lng ; i ++){
-	// 		addrBox.innerHTML += "<tr draggable='true'><td>" 
-	// 			+ data[i].id + "</td><td>" 
-	// 			+ data[i].cat + "</td><td>" 
-	// 			+ data[i].company + "</td><td>" 
-	// 			+ data[i].depart + "</td><td>" 
-	// 			+ data[i].team + "</td><td>" 
-	// 			+ data[i].posit + "</td><td>" 
-	// 			+ data[i].name + "</td><td>" 
-	// 			+ data[i].job + "</td><td>" 
-	// 			+ data[i].phone + "</td><td>" 
-	// 			+ data[i].cell + "</td><td>" 
-	// 			+ data[i].email + "</td><td>" 
-	// 			+ data[i].etc + "</td><td>"
-	// 			+ data[i].pos + "</td></tr>";
-	// 	}
-    // });
 });
 
 /** 상단 각 분류 표시 */
@@ -415,7 +349,6 @@ function dropOnCatCell(e) {
 		}
 	});
 
-	// selectCatData( precat ) ;
 	pagedList( 1, precat ) ;
 	e.preventDefault();
 }
@@ -423,7 +356,6 @@ function dropOnCatCell(e) {
 /** Dummy 연락처 생성 */
 document.getElementById("b_genData").addEventListener("click", function(){
 	var val = Math.floor(1000 + Math.random() * 9000);
-	//var clickButton = document.getElementById("b_insert");
 
 	dashboard.innerHTML	= "";
 	for( var i = 0 ; i < 10 ; i++ ) {
@@ -456,7 +388,6 @@ document.getElementById("b_db_delete").addEventListener("click", function(){
 		}
 	});
 	catDisplay();
-	//databaseExists();
 });
 
 /* File Control Zone */
@@ -775,111 +706,3 @@ function intval (mixed_var, base) {
     
     tmp = null, type = null;
 }
-
-
-// document.getElementById("b_max").addEventListener("click", function(){
-// 	dashboard.innerHTML	= "";
-//     IndexedDB.selectMaxValue("keyIndex",function(data){
-//   		dashboard.innerHTML = JSON.stringify(data) + "<br>";
-//    		dashboard.innerHTML += "최댓값 조회 완료";
-//     });
-// });
-
-
-// document.addEventListener("drop", function( event ) {
-// 	// prevent default action (open as link for some elements)
-// 	event.preventDefault();
-// 
-// 	// move dragged elem to the selected drop target
-// 	if ( event.target.className == "dropzone" ) {
-// 		event.target.style.background = "";
-// 
-// 		var precat = dragged.childNodes[1].innerHTML;
-// 		var postcat = event.target.innerText;
-// 		if( precat != postcat ) {
-// 			
-// 			var selObj = {
-// 				id:Number.parseInt( dragged.childNodes[0].innerHTML ),
-// 				cat:dragged.childNodes[1].innerHTML,
-// 				company:dragged.childNodes[2].innerHTML,
-// 				depart:dragged.childNodes[3].innerHTML, 
-// 				team:dragged.childNodes[4].innerHTML, 
-// 				posit:dragged.childNodes[5].innerHTML, 
-// 				name:dragged.childNodes[6].innerHTML, 
-// 				job:dragged.childNodes[7].innerHTML, 
-// 				phone:dragged.childNodes[8].innerHTML, 
-// 				cell:dragged.childNodes[9].innerHTML, 
-// 				email:dragged.childNodes[10].innerHTML, 
-// 				etc:dragged.childNodes[11].innerHTML,
-// 				pos:dragged.childNodes[12].innerHTML		// 순번 계산을 옴겨지는 Category의 마지막 번호로 기입
-// 			}
-// 			
-// 			dragged.parentNode.removeChild( dragged );
-// 			selObj.cat = postcat;
-// 			IndexedDB.insert(selObj,function(data){
-// 				if(selObj == 1){
-// 					console.log ( "id:" + data.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
-// 				}
-// 			});
-// 		}
-// 	}
-// }, false);
-
-//function databaseExists() {
-//	var data = false;
-//	dashboard.innerHTML	= "";
-//	IndexedDB.databaseExists ( function(data){
-//		if(data == true){
-//			console.log( "DB가 존재합니다." );
-//			b_db_create.disabled = true;
-//			b_db_delete.disabled = false;
-//		} else {
-//			console.log( "DB가 없습니다." );
-//			b_db_create.disabled = false;
-//			b_db_delete.disabled = true;
-//			
-//		}
-//	});
-//}
-
-
-/**
- * 각 분류별 Address 목록을 표시
- * @param {} txt 
- */
-// function selectCatData( txt ) {
-// 	dashboard.innerHTML	= "<br><table style='width:100%;' class='addrlist'><tbody id='addrBox'></tbody></table><br>";
-
-//     IndexedDB.selectCat( txt, function(data) {
-// 		for(var i = 0, lng = data.length ; i < lng ; i ++){
-// 			addrBox.innerHTML += "<tr draggable='true' onclick='select(" + data[i].id + ");'><td>" 
-// 				+ data[i].id + "</td><td>" 
-// 				+ data[i].cat + "</td><td>" 
-// 				+ data[i].company + "</td><td>" 
-// 				+ data[i].depart + "</td><td>" 
-// 				+ data[i].team + "</td><td>" 
-// 				+ data[i].posit + "</td><td>" 
-// 				+ data[i].name + "</td><td>" 
-// 				+ data[i].job + "</td><td>" 
-// 				+ data[i].phone + "</td><td>" 
-// 				+ data[i].cell + "</td><td>" 
-// 				+ data[i].email + "</td><td>" 
-// 				+ data[i].etc + "</td><td>"
-// 				+ data[i].pos + "</td></tr>";
-// 		}
-//     });
-// }
-
-// document.getElementById("b_getOne").addEventListener("click", function(){
-// 	dashboard.innerHTML	= "찾는 값 : " + a_getOne.value + "<br> 결과 : ";
-
-// 	// available index name : phoneIdx, cellIdx, emailIdx
-//     IndexedDB.getOne(a_getOne.value, "cellIdx", function(data){
-// 		var lng = data.length;
-// 		if( lng == 0 ) {
-// 			alert( "전화번호(" + a_getOne.value + ")가 없습니다. \r\n확인 후 다시 시도해 주세요." );
-// 		}
-// 		dashboard.innerHTML += JSON.stringify(data[0]);
-//     });
-// });
-
