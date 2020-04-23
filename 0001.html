@@ -66,7 +66,7 @@ tr:nth-child(odd) {
     <img src="img/vcsremoved_93492.png" class ="dragStop" />
 </div>
 	<fieldset>
-		<legend>업무 연락처</legend>
+		<legend>업무 연락처 상세 내용</legend>
 		<input id="a_id" type="hidden">
 		<label for="a_cat">구분</label> <input id="a_cat" type="text" list="catlists"> <datalist id="catlists"></datalist>
 		<label for="a_company">회사</label> <input id="a_company" type="text" list="companylists"> <datalist id="companylists"></datalist>
@@ -83,20 +83,20 @@ tr:nth-child(odd) {
 		<label for="a_email">e-Mail</label> <input id="a_email" type="text">
 		<label for="a_etc">기타</label>     <input id="a_etc"   type="text">
 		<label for="a_pos">순번</label>     <input id="a_pos"   type="text">
-		<br>
-		<button id="b_list">전체 목록</button>
+		<br><br>
 		<button id="b_insert">등록</button>
 		<button id="b_modify">수정</button>
-		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"><button id="b_catmax">최대값</button>
+		<button id="b_genData">데이터 생성</button> &nbsp; 
 		<input  id="a_search" type="text" placeholder="조회 문자 입력"><button id="b_search">조회</button>
-		<button id="b_genData">데이터 생성</button>
 	</fieldset>
 	<fieldset>
 		<legend>설정</legend>
-		DB Name : AddressDB 
-		<button id="b_db_delete">전체 데이터 삭제</button>
-		<button id="b_backup">Data 백업</button>
-		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*">
+		IndexedDB Name : AddressDB <br>
+		<button id="b_list">전체 목록</button>  &nbsp; 
+		<button id="b_db_delete">전체 데이터 삭제</button> &nbsp; 
+		<button id="b_backup">Data 백업</button> &nbsp; 
+		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*"> &nbsp; 
+		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"><button id="b_catmax">최대값</button>
 	</fieldset>
 	<div id="catBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>

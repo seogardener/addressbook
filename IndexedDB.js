@@ -89,28 +89,6 @@ var IndexedDB = {
 		}
 	},
 
-	getOne: function (data, idx, callback) {
-		var database = this.getConnection();
-		
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var keyRange = IDBKeyRange.only( data );
-			var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
-
-			cursor.onsuccess = function (event) {
-				callback(cursor.result);
-			};
-			tx.oncomplete = function () {
-				console.log( "연결 종료") ;
-				db.close();
-			};
-		}
-		database.onerror = function (event) {
-			callback(event);
-		}
-	},
-
 	selectAll: function (callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
@@ -186,7 +164,7 @@ var IndexedDB = {
 						return;
 					}
 					if (cursor) {
-						console.log('pushing ',cursor.value);
+						// console.log('pushing ',cursor.value);
 						datas.push(cursor.value);
 						if(datas.length < total) {
 							cursor.continue();
@@ -194,7 +172,7 @@ var IndexedDB = {
 							resolve(datas);
 						}
 					} else {
-						console.log('resolving ',datas);
+						// console.log('resolving ',datas);
 						resolve(datas);
 					}
 				};
@@ -248,12 +226,13 @@ var IndexedDB = {
 		}
 	},
 
+	/** Address 추가 등록 */
 	insert: function (val, callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readwrite");
-			var store = tx.objectStore(IndexedDB.schemaName);
+			var db		= database.result;
+			var tx		= db.transaction(IndexedDB.schemaName, "readwrite");
+			var store	= tx.objectStore(IndexedDB.schemaName);
 		
 			store.put(val);
 		
@@ -304,37 +283,38 @@ var IndexedDB = {
 		}
 	},
 	
-	searchStr: function( searchTerm, callback ) {
-		var result = [];
-		var database = this.getConnection();
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursorReq = tx.objectStore(IndexedDB.schemaName).openCursor();
-			var cursor, temdata, datas = [];
+	/** 문자열 검색 */
+	// searchStr: function( searchTerm, callback ) {
+	// 	var result = [];
+	// 	var database = this.getConnection();
+	// 	database.onsuccess = function () {
+	// 		var db = database.result;
+	// 		var tx = db.transaction(IndexedDB.schemaName, "readonly");
+	// 		var cursorReq = tx.objectStore(IndexedDB.schemaName).openCursor();
+	// 		var cursor, temdata, datas = [];
 		
-			cursorReq.onsuccess = function(e) {
-				cursor = e.target.result;
-				tempdata = "";
-				datas = [];
-				if(cursor) {
-					for( var key in cursor.value ) {
-						tempdata = cursor.value[key].toString();
-						if( tempdata.search( searchTerm ) > -1 ) {
-							datas.push(cursor.value);
-							break;
-						}
-					}
-					cursor.continue();
-				}
-				callback(datas);
-			}
-			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
-				db.close();
-			};
-		};
-	},
+	// 		cursorReq.onsuccess = function(e) {
+	// 			cursor = e.target.result;
+	// 			tempdata = "";
+	// 			datas = [];
+	// 			if(cursor) {
+	// 				for( var key in cursor.value ) {
+	// 					tempdata = cursor.value[key].toString();
+	// 					if( tempdata.search( searchTerm ) > -1 ) {
+	// 						datas.push(cursor.value);
+	// 						break;
+	// 					}
+	// 				}
+	// 				cursor.continue();
+	// 			}
+	// 			callback(datas);
+	// 		}
+	// 		tx.oncomplete = function () {
+	// 			console.log( "트랜잭션이 종료") ;
+	// 			db.close();
+	// 		};
+	// 	};
+	// },
 
 	GroupByMenu : function( callback ) {
 		var database = this.getConnection();
@@ -467,6 +447,134 @@ var IndexedDB = {
 			};
 			tx.oncomplete = function () {
 				console.log( "연결 종료") ;
+				db.close();
+			};
+		}
+		database.onerror = function (event) {
+			callback(event);
+		}
+	},
+
+	/** 
+	 * 검색어와 매치되는 Address를 목록을 반환
+	 * start : 첫번째 Address의 시작 위치
+	 * total : 반환할 Address의 개수
+	 * txt : 검색어
+	 */
+	searchStr2 : function ( start, total, txt, callback ) {
+
+		var database = this.getConnection();
+		return new Promise(function(resolve, reject) {
+
+			database.onsuccess = function () {
+				var db			= database.result;
+				var tx			= db.transaction(IndexedDB.schemaName, "readonly");
+				var store		= tx.objectStore(IndexedDB.schemaName).index("poscatIdx");
+				var hasSkipped	= false;
+				var datas		= [];
+
+				console.log('start='+start+' total='+total);
+
+				store.openCursor().onsuccess = function (event) {
+					var cursor = event.target.result;
+					if(!hasSkipped && start > 0) {
+						hasSkipped = true;
+						cursor.advance(start);
+						return;
+					}
+					if (cursor) {
+						// console.log('pushing ',cursor.value);
+						datas.push(cursor.value);
+						if(datas.length < total) {
+							cursor.continue();
+						} else {
+							resolve(datas);
+						}
+					} else {
+						// console.log('resolving ',datas);
+						resolve(datas);
+					}
+				};
+			}
+			database.onerror = function (event) {
+				callback(event);
+			}
+		});
+	},
+
+	/** 
+	 * 검색어와 매치되는 Address를 목록을 반환
+	 * start : 첫번째 Address의 시작 위치
+	 * total : 반환할 Address의 개수
+	 * txt : 검색어
+	 */
+	searchStr : function ( start, total, txt, callback ) {
+		var database = this.getConnection();
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+			var cursorReq = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").openCursor();
+			var cursor, temdata, datas = [];
+			var mstart	= 0;
+			var mcount	= 0;
+			var tcount	= 0;
+
+			cursorReq.onsuccess = function(e) {
+				cursor = e.target.result;
+				tempdata = "";
+				if(cursor) {
+					for( var key in cursor.value ) {
+						tempdata = cursor.value[key].toString();
+
+						if( tempdata.search( txt ) > -1 ) {
+							mstart++;
+							if( start < mstart && total > mcount ) {
+								datas.push(cursor.value);
+								mcount++;
+							}
+							break;
+						}
+					}
+					cursor.continue();
+				}
+			}
+			tx.oncomplete = function () {
+				callback(datas);
+				console.log( "트랜잭션이 종료") ;
+				db.close();
+			};
+		}
+		database.onerror = function (event) {
+			callback(event);
+		}
+	},
+
+	/** 검색어를 포함하는 Address 전체 개수 반환 ( 최소 2글자 이상 ) */
+	countSearch : function( txt, callback ) {
+		var database = this.getConnection();
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+			var cursorReq = tx.objectStore(IndexedDB.schemaName).openCursor();
+			var cursor, temdata, datas = 0;
+
+			cursorReq.onsuccess = function(e) {
+				cursor = e.target.result;
+				tempdata = "";
+				if(cursor) {
+					for( var key in cursor.value ) {
+						tempdata = cursor.value[key].toString();
+						if( tempdata.search( txt ) > -1 ) {
+							datas++;
+							break;
+						}
+					}
+					cursor.continue();
+				}
+			}
+			tx.oncomplete = function () {
+				callback(datas);
+				console.log( "트랜잭션이 종료") ;
 				db.close();
 			};
 		}
@@ -655,5 +763,27 @@ var IndexedDB = {
 	// 			db.close();
 	// 			callback(datas);
 	// 		};
+	// 	}
+	// },
+
+		// getOne: function (data, idx, callback) {
+	// 	var database = this.getConnection();
+		
+	// 	database.onsuccess = function () {
+	// 		var db = database.result;
+	// 		var tx = db.transaction(IndexedDB.schemaName, "readonly");
+	// 		var keyRange = IDBKeyRange.only( data );
+	// 		var cursor = tx.objectStore(IndexedDB.schemaName).index( idx ).getAll( keyRange );
+
+	// 		cursor.onsuccess = function (event) {
+	// 			callback(cursor.result);
+	// 		};
+	// 		tx.oncomplete = function () {
+	// 			console.log( "연결 종료") ;
+	// 			db.close();
+	// 		};
+	// 	}
+	// 	database.onerror = function (event) {
+	// 		callback(event);
 	// 	}
 	// },
