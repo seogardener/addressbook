@@ -45,29 +45,6 @@ var IndexedDB = {
 		}
 	},
 	
-	selectOne: function (id, callback) {
-		var database = this.getConnection();
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var store = tx.objectStore(IndexedDB.schemaName);
-
-			var data = store.get(id);
-			data.onsuccess = function () {
-				// console.log( data.result );
-				callback(data.result);
-			}
-			tx.oncomplete = function () {
-				// console.log( "연결 종료") ;
-				db.close();
-			};
-		}
-		
-		database.onerror = function (event) {
-			callback(event);
-		}
-	},
-
 	selectId: function (id, callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
@@ -77,10 +54,11 @@ var IndexedDB = {
 			var cursor = tx.objectStore(IndexedDB.schemaName).index("keyIndex").get( keyRange );
 
 			cursor.onsuccess = function (event) {
-				callback(cursor.result);
+				//callback(cursor.result);
 			};
 			tx.oncomplete = function () {
 				console.log( "연결 종료") ;
+				callback(cursor.result);
 				db.close();
 			};
 		}
@@ -192,10 +170,10 @@ var IndexedDB = {
 			//var store = tx.objectStore(IndexedDB.schemaName);
 			//var index = store.index("poscatIdx");
 			//var cursor = index.openCursor(range, 'prev');
-			var obj = null;
-			var last  = null;
-			var data = null;
-			var max = 0;
+			var obj		= null;
+			var last 	= null;
+			var data	= null;
+			var max		= 1;
 
 			var keyRange = IDBKeyRange.bound( [catName, 0], [catName, 999999999] );
 			var cursor = tx.objectStore(IndexedDB.schemaName).index("poscatIdx").getAll( keyRange );
@@ -216,13 +194,18 @@ var IndexedDB = {
 				}
 			};
 			tx.oncomplete = function () {
-				console.log( "연결 종료") ;
+				console.log( "getCatMaxValue 종료") ;
 				db.close();
 				callback(max);
 			};
+			tx.onerror = function () {
+				console.log( "getCatMaxValue 실패") ;
+				db.close();
+				callback(0);
+			}
 		}
 		database.onerror = function (event) {
-			callback(event);
+			callback(0);
 		}
 	},
 
@@ -233,7 +216,7 @@ var IndexedDB = {
 			var db		= database.result;
 			var tx		= db.transaction(IndexedDB.schemaName, "readwrite");
 			var store	= tx.objectStore(IndexedDB.schemaName);
-		
+			console.log( val );
 			store.put(val);
 		
 			tx.oncomplete = function () {
@@ -256,33 +239,6 @@ var IndexedDB = {
 		}
 	},
 
-	delete: function (id, callback) {
-		var database = this.getConnection();
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readwrite");
-			var store = tx.objectStore(IndexedDB.schemaName);
-		
-			store.delete(id);
-		
-			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
-				db.close();
-				callback(1);
-			};
-			tx.onabort  = function(){
-				console.log( "트랜잭션이 취소" );
-			};
-			tx.onerror = function(){
-				console.log( "트랜잭션이 실패" );
-			};
-		}
-		
-		database.onerror = function (event) {
-			callback(event);
-		}
-	},
-	
 	GroupByMenu : function( callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
@@ -549,5 +505,55 @@ var IndexedDB = {
 			callback(event);
 		}
 	}
-
 }
+
+// delete: function (id, callback) {
+// 	var database = this.getConnection();
+// 	database.onsuccess = function () {
+// 		var db = database.result;
+// 		var tx = db.transaction(IndexedDB.schemaName, "readwrite");
+// 		var store = tx.objectStore(IndexedDB.schemaName);
+	
+// 		store.delete(id);
+	
+// 		tx.oncomplete = function () {
+// 			console.log( "트랜잭션이 종료") ;
+// 			db.close();
+// 			callback(1);
+// 		};
+// 		tx.onabort  = function(){
+// 			console.log( "트랜잭션이 취소" );
+// 		};
+// 		tx.onerror = function(){
+// 			console.log( "트랜잭션이 실패" );
+// 		};
+// 	}
+	
+// 	database.onerror = function (event) {
+// 		callback(event);
+// 	}
+// },
+
+	// selectOne: function (id, callback) {
+	// 	var database = this.getConnection();
+	// 	database.onsuccess = function () {
+	// 		var db = database.result;
+	// 		var tx = db.transaction(IndexedDB.schemaName, "readonly");
+	// 		var store = tx.objectStore(IndexedDB.schemaName);
+
+	// 		var data = store.get(id);
+	// 		data.onsuccess = function () {
+	// 			// console.log( data.result );
+	// 			callback(data.result);
+	// 		}
+	// 		tx.oncomplete = function () {
+	// 			// console.log( "연결 종료") ;
+	// 			db.close();
+	// 		};
+	// 	}
+		
+	// 	database.onerror = function (event) {
+	// 		callback(event);
+	// 	}
+	// },
+

@@ -86,8 +86,10 @@ tr:nth-child(odd) {
 		<br><br>
 		<button id="b_insert">등록</button>
 		<button id="b_modify">수정</button>
-		<button id="b_genData">데이터 생성</button> &nbsp; 
-		<input  id="a_search" type="text" placeholder="조회 문자 입력"><button id="b_search">조회</button>
+		<button id="b_delete">삭제</button>
+		<button id="b_genData">데이터 자동 생성</button> &nbsp; 
+		<input  id="a_search" type="text" placeholder="조회 문자 입력"><button id="b_search">조회</button> &nbsp; 
+		<button id="b_deleted">휴지통</button>
 	</fieldset>
 	<fieldset>
 		<legend>설정</legend>
@@ -96,7 +98,7 @@ tr:nth-child(odd) {
 		<button id="b_db_delete">전체 데이터 삭제</button> &nbsp; 
 		<button id="b_backup">Data 백업</button> &nbsp; 
 		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*"> &nbsp; 
-		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"><button id="b_catmax">최대값</button>
+		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"> <button id="b_catmax">최대값</button>
 	</fieldset>
 	<div id="catBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
 	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
