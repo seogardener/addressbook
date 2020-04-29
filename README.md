@@ -4,14 +4,17 @@
 
 Browser에서 제공하는 기본 기능을 이용한 첫화면 구성.
 
-처음 Browser를 실행시켰을때 화면을 
-  가장 자주 사용하는 사이트 표시 ( sitebook )
-  주소록 ( addressbook )
-등을 표시하여 사용의 효율성을 높이기 위해 만듬.
+처음 Browser를 실행시켰을때 화면을 아래와 같이 표시하여 사용의 효율성을 높이기 위해 만듬.
+- 가장 자주 사용하는 사이트 표시 ( sitebook )
+- 주소록 ( addressbook )
 
-DB : indexedDB
-Language : pure JavaScript
-Browser : Chrome ( IE는 확인 중 )
+---
+
+- DB : indexedDB
+- Language : pure JavaScript,
+- Browser : Chrome ( IE는 확인 중 )
+
+---
 
 - 구현된 기능
 개별 주소에 대한 등록, 수정, 삭제 기능 제공
