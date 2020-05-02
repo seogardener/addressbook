@@ -57,7 +57,7 @@ var IndexedDB = {
 				//callback(cursor.result);
 			};
 			tx.oncomplete = function () {
-				console.log( "연결 종료") ;
+				// console.log( "연결 종료") ;
 				callback(cursor.result);
 				db.close();
 			};
@@ -91,7 +91,7 @@ var IndexedDB = {
 					}
 				};
 				tx.oncomplete = function () {
-					console.log( "트랜잭션이 종료") ;
+					// console.log( "트랜잭션이 종료") ;
 					db.close();
 				};
 				tx.onabort  = function(){
@@ -130,7 +130,7 @@ var IndexedDB = {
 					var store = tx.objectStore(IndexedDB.schemaName).index("poscatIdx");
 				}
 				var store = tx.objectStore(IndexedDB.schemaName).index("poscatIdx");
-				console.log('start='+start+' total='+total);
+				// console.log('start='+start+' total='+total);
 				var hasSkipped = false;
 				var datas = [];
 
@@ -194,7 +194,7 @@ var IndexedDB = {
 				}
 			};
 			tx.oncomplete = function () {
-				console.log( "getCatMaxValue 종료") ;
+				// console.log( "getCatMaxValue 종료") ;
 				db.close();
 				callback(max);
 			};
@@ -216,11 +216,11 @@ var IndexedDB = {
 			var db		= database.result;
 			var tx		= db.transaction(IndexedDB.schemaName, "readwrite");
 			var store	= tx.objectStore(IndexedDB.schemaName);
-			console.log( val );
+			//console.log( val );
 			store.put(val);
 		
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				//console.log( "트랜잭션이 종료") ;
 				db.close();
 				callback(true);
 			};
@@ -239,6 +239,7 @@ var IndexedDB = {
 		}
 	},
 
+	/** 상단 각 분류 표시를 위한 분류에 대한 유일한 값 찾기 */
 	GroupByMenu : function( callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
@@ -262,7 +263,7 @@ var IndexedDB = {
 				req.continue();
 			};
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				// console.log( "트랜잭션이 종료") ;
 				db.close();
 				callback(dupes);
 			};
@@ -287,7 +288,7 @@ var IndexedDB = {
 				datas = cursor.result;
 			};
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				// console.log( "트랜잭션이 종료") ;
 				db.close();
 				callback(datas);
 			};
@@ -304,7 +305,7 @@ var IndexedDB = {
 			store.clear();
 		
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				// console.log( "트랜잭션이 종료") ;
 				db.close();
 				callback(true);
 			};
@@ -320,7 +321,8 @@ var IndexedDB = {
 		}
 	},
 	
-	 GetUniqueValue : function( idx, callback ) {
+	/** 개별 항목에 대한 Uniq 데이터를 수집해서 반환 */
+	GetUniqueValue : function( idx, callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
 		database.onsuccess = function () {
@@ -342,7 +344,7 @@ var IndexedDB = {
 				req.continue();
 			};
 			tx.oncomplete = function () {
-				console.log( "트랜잭션이 종료") ;
+				// console.log( "트랜잭션이 종료") ;
 				db.close();
 				callback(dupes);
 			};
@@ -369,7 +371,7 @@ var IndexedDB = {
 				callback(cursor.result);
 			};
 			tx.oncomplete = function () {
-				console.log( "연결 종료") ;
+				// console.log( "연결 종료") ;
 				db.close();
 			};
 		}
@@ -396,7 +398,7 @@ var IndexedDB = {
 				var hasSkipped	= false;
 				var datas		= [];
 
-				console.log('start='+start+' total='+total);
+				// console.log('start='+start+' total='+total);
 
 				store.openCursor().onsuccess = function (event) {
 					var cursor = event.target.result;
@@ -463,7 +465,7 @@ var IndexedDB = {
 			}
 			tx.oncomplete = function () {
 				callback(datas);
-				console.log( "트랜잭션이 종료") ;
+				// console.log( "트랜잭션이 종료") ;
 				db.close();
 			};
 		}
@@ -497,7 +499,7 @@ var IndexedDB = {
 			}
 			tx.oncomplete = function () {
 				callback(datas);
-				console.log( "트랜잭션이 종료") ;
+				// console.log( "트랜잭션이 종료") ;
 				db.close();
 			};
 		}

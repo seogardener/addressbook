@@ -6,7 +6,12 @@ catDisplay();
 genDatalists();
 
 /** 변경전 Addr의 내용이 저장 */
-preAddr	= [];
+var GVari = {
+	addrList	: [],	// 목록 내용 저장
+	preAddr		: [],
+	sel_Category: "",	// 선택된 Category
+	sel_curPage : 1	// 선택된 현재 page
+};
 
 /* Address Book */
 
@@ -28,32 +33,8 @@ document.getElementById("b_insert").addEventListener("click", function(){
 		//id:
 	}
 
-	// 선택된 분류(Cat)에 위치(pos)의 최대값 가져오기
-	var _promise = function () {
-		return new Promise(function(resolve, reject) {
-			IndexedDB.getCatMaxValue(a_cat.value, function(data){
-				if( data.length == 0 ) {
-					reject(Error("It broke"));
-				} else {
-					resolve(data);
-				}
-			});
-		});
-	};
-
-	_promise().then(function (data) {
-		addr.pos	= parseInt( data );
-		IndexedDB.insert(addr,function(data){
-			// dashboard.innerHTML	= "";
-			// if(data == 1){
-			// 	dashboard.innerHTML+= JSON.stringify(addr) + "<br>";
-			// }
-			console.log(JSON.stringify(addr));
-		});
-	}, function (error) {
-		// 실패시 
-		console.error(error);
-	});
+	/** 해당 분류에 마지막 pos 값을 구한 후 등록 진행 */
+	movingAddr( a_cat.value, addr );
 
 });
 
@@ -64,19 +45,6 @@ document.getElementById("b_delete").addEventListener("click", function(){
 		alert( "선택된 Address가 없습니다.\n\n선택 후 삭제하십시오." );
 		return false;
 	}
-
-	// 선택된 분류(Cat)에 위치(pos)의 최대값 가져오기
-	var _promise = function () {
-		return new Promise(function(resolve, reject) {
-			IndexedDB.getCatMaxValue("휴지통", function(data){
-				if( data.length == 0 ) {
-					reject(Error("It broke"));
-				} else {
-					resolve(data);
-				}
-			});
-		});
-	};
 
 	var addr = {
 		id :parseInt( a_id.value ),
@@ -109,18 +77,9 @@ document.getElementById("b_delete").addEventListener("click", function(){
 		postData	+= "\n순번 : " + a_pos.value;
 
 	if( confirm( postData ) ) {
-
-		_promise().then(function (data) {
-			console.log( data );
-			addr.pos	= parseInt( data );
-			IndexedDB.insert(addr,function(data){});
-		}, function (error) {
-			// 실패시 
-			console.error(error);
-		});
-
+		movingAddr( "휴지통" , addr );
 		clearForm();
-		document.getElementById("b_list").click();
+		pagedList(GVari.sel_curPage, GVari.sel_Category );
 	}
 });
 
@@ -176,24 +135,24 @@ function clearForm() {
  * cat : 분류 이름, 전체는 "ALL"
  */
 function pagedList( curPage, cat ) {
-	var htmlData	= "<br><table style='width:100%;'>";
-	htmlData	+= "<thead><tr style='background-color:#F5CF6A;'><th></th><th>ID</th><th>분류</th><th>회사</th><th>부서</th><th>팀</th><th>직급</th><th>이름</th><th>업무</th><th>회사 전화</th><th>휴대 전화</th><th>eMail</th><th>기타</th><th>Pos</th></tr></thead>";
-	htmlData	+= "<tbody id='addrBox'></tbody>";
-	htmlData	+= "<tfoot><tr><td colspan=8><input type='checkbox' onClick='toggle4cb(this)'> 전체 선택</td><td colspan=6 style='text-align: right;'>이동 &nbsp; <a href='#' onClick='delete4cb();'>삭제</a> &nbsp; 추가 &nbsp; </td></tr><tr><th colspan='10' id='paging'></th><th colspan='4' id='totalcnt'></th></tr></tfoot></table><br>";
+	// var htmlData	= "<br><table style='width:100%;'>";
+	// htmlData	+= "<thead><tr style='background-color:#F5CF6A;'><th></th><th>ID</th><th>분류</th><th>회사</th><th>부서</th><th>팀</th><th>직급</th><th>이름</th><th>업무</th><th>회사 전화</th><th>휴대 전화</th><th>eMail</th><th>기타</th><th>Pos</th></tr></thead>";
+	// htmlData	+= "<tbody id='addrBox'></tbody>";
+	// htmlData	+= "<tfoot><tr><td colspan=8><input type='checkbox' onClick='toggle4cb(this)'> 전체 선택</td><td colspan=6 style='text-align: right;'>이동 &nbsp; <a href='#' onClick='delete4cb();'>삭제</a> &nbsp; 추가 &nbsp; </td></tr><tr><th colspan='10' id='paging'></th><th colspan='4' id='totalcnt'></th></tr></tfoot></table><br>";
 
-	dashboard.innerHTML	= htmlData;
+	// dashboard.innerHTML	= htmlData;
+	GVari.sel_curPage	= curPage;
+	GVari.sel_Category	= cat;
 
 	var cperpage	= 15,
 		totalpost	= 0,
 		start		= ( curPage - 1 ) * cperpage;
 	
 	/** 전체 Address 갯수 값을 가져와서 하단 네비게이션 바 생성 */
-	console.log( "Category : "  + cat );
-
 	IndexedDB.countCat( cat, function( data ) {
 		totalpost	= parseInt( data );
 
-		console.log( "Count : "  + cat + " : " + data );
+		// console.log( "Count : "  + cat + " : " + data );
 		if( totalpost > cperpage ) {
 			// 하단 네비게이션 메뉴 바 표시
 			totalcnt.style.backgroundColor	= "#54D1F1";
@@ -227,8 +186,14 @@ function pagedList( curPage, cat ) {
 	});
 
 	/** 갯수(cperpage) 만큼 Address 를 가져와서 표시 */
+	addrBox.innerHTML	= "";
 	IndexedDB.getData( start, cperpage, cat ).then( function( data ) {
-		for( var i = 0 , lng = data.length ; i < lng ; i++ ){
+		var lng	= data.length;
+		if( lng == 0 ) pagedList( curPage - 1, cat );
+		GVari.addrList = [];
+		for( var i = 0 ; i < lng ; i++ ){
+			GVari.addrList[i]	= data;
+			//GVari.addrList.push	= data;
 			addrBox.innerHTML += "<tr draggable='true' onclick='select(" + data[i].id + ");'><td>" 
 				+ "<input type='checkbox' name='cb_addr' value='" + data[i].id + "'></td><td>"
 				+ data[i].id + "</td><td>" 
@@ -245,8 +210,19 @@ function pagedList( curPage, cat ) {
 				+ data[i].etc + "</td><td>"
 				+ data[i].pos + "</td></tr>";
 		}
+		Common.tblRollOver(document.getElementById("addrBox"));
 	});
+
+	document.getElementById("list_div").style.display	= 'block';
 };
+
+/** 기능 테스트 시험을 위한 행위 */
+document.getElementById("b_test").addEventListener("click", function(){
+	//var addrBox	= document.getElementById('addrBox');
+	console.log( GVari.addrList );
+	console.log( GVari.addrList.length );
+});
+
 
 /** CheckBox 전체 선택 및 해제 */
 function toggle4cb(source) {
@@ -258,11 +234,11 @@ function toggle4cb(source) {
 
 /** CheckBox에 체크된 Address에 대한 삭제 작업 진행 */
 function delete4cb() {
-	var checkboxes	= document.getElementsByName('cb_addr');
-	var n			= checkboxes.length;
-	var selcnt		= 0;
-	var selid, addr;
-	var rPos, rAddr;
+	var checkboxes	= document.getElementsByName('cb_addr'),
+		n			= checkboxes.length,
+		selcnt		= 0,
+		cat			= "휴지통",
+		selid;
 
 	for( var i = 0 ; i < n ; i++ ) {
 		if( checkboxes[i].checked == true ) {
@@ -276,57 +252,56 @@ function delete4cb() {
 			if( checkboxes[i].checked == true ) {
 				selid	= parseInt( checkboxes[i].value );
 //-------------
-
-
-				/** 개별 Address에 대한 상세 정보를 가져온다. */
-				var _promise = function () {
+				var _promise = function () {	// 선택된 Address에 대한 정보를 가져온다.
 					return new Promise(function(resolve, reject) {
 						IndexedDB.selectId(selid, function(data){
-							if( data.length == 0 )	reject(Error("It broke"));
-							else 					resolve(data);
+							if( data.length == 0 ) {
+								reject(Error("It broke"));
+							} else {
+								console.log("selectId");
+								resolve(data);
+							}
 						});
 					});
 				};
-
-				/** 수정된 정보를 저장함. */
-				var _promise2 = function () {
+			
+				// 선택된 Category내의 최대 Pos 값에 +1 한 값을 리턴한다
+				var _promise2 = function () {	
 					return new Promise(function(resolve, reject) {
-						IndexedDB.insert(addr, function(data){
-							if( data == false )	reject(Error("It broke"));
-							else 				resolve(data);
+						IndexedDB.getCatMaxValue( cat ,function(data){
+							console.log("getCatMaxValue");
+							resolve(parseInt( data ));
 						});
 					});
 				};
-
+			
 				_promise().then(function (data) {
-					addr	= data;
-					addr.cat	= "휴지통";
-					console.log( addr );
-					_promise2().then(function (data) {
-						console.log( addr );
-					}, function (error) {
-						console.error(error);
+					_promise2().then(function (nextPos) {
+						data.cat = cat;		// 바뀐 Category로 변경
+						data.pos = nextPos;	// Category내의 마지막 Pos 값으로 위치 지정
+						
+						IndexedDB.insert(data,function(data){			// 바뀐 정보로 Update
+							console.log("insert");
+							if( data == true ) {
+								//console.log ( cat + "로 이동 완료." );
+								// addrBox.innerHTML = selid + "를 삭제하였습니다.";
+							} else {
+								//console.log( "이동 중 오류가 발생하였습니다." );
+							}
+						});
 					});
 				}, function (error) {
 					// 실패시 
 					console.error(error);
 				});
 
-
-
-			
 //---------------
 			}
 		}
+		pagedList(1, GVari.sel_Category );
 	}
 };
 
-function sleep (delay) {
-	var start = new Date().getTime();
-	while (new Date().getTime() < start + delay);
-	console.log( "sleep...." );
- }
- 
 /** 지정된 Category로 Address 이동 */
 function movingAddr( cat, addr ) {
 
@@ -345,24 +320,16 @@ function movingAddr( cat, addr ) {
 	};
 
 	_promise().then(function (data) {
-		console.log( "pos = " + data );
+		// console.log( "pos = " + data );
 		addr.cat	= cat;
 		addr.pos	= parseInt( data );
 		IndexedDB.insert(addr,function(data){
 			if( data == true ) {
 				console.log ( addr.name + " : 이동 완료." );
-				return true;
 			} else {
 				console.log( "이동 중 오류가 발생하였습니다." );
-				return false;
 			}
 		});
-		setTimeout(function(){	console.log("hello world");	 }, 300);
-		//sleep( 300 );
-
-	}, function (error) {
-		console.error(error);
-		return false;
 	});
 };
 
@@ -466,7 +433,7 @@ function select(id){
 		a_etc.value = data.etc;
 		a_pos.value = data.pos;
 
-		preAddr	= data;		// 변경전 Addr 저장, Global Variable
+		GVari.preAddr	= data;		// 변경전 Addr 저장, Global Variable
 	});
 
 };
@@ -477,7 +444,7 @@ document.getElementById("b_modify").addEventListener("click", function(){
 		alert( "수정할 수 없습니다. ( 아래 이유 참고 ) \r\n 1.기존에 등록된 주소가 아닙니다. 등록 버튼을 누르세요." );
 	}
 	var addr = {
-		id:parseInt( preAddr.id ),	// id 변경 불가
+		id:parseInt( GVari.preAddr.id ),	// id 변경 불가
 		cat:a_cat.value,
 		company:a_company.value,
 		depart:a_depart.value, 
@@ -489,11 +456,11 @@ document.getElementById("b_modify").addEventListener("click", function(){
 		cell:a_cell.value, 
 		email:a_email.value, 
 		etc:a_etc.value,
-		pos:parseInt( preAddr.pos )	// pos 변경 불가
+		pos:parseInt( GVari.preAddr.pos )	// pos 변경 불가
 	}
 
 	/** 분류가 수정이 되었는지 확인 */
-	if( preAddr.cat == a_cat.value ) {	// 분류가 변경되지 않은 경우, pos를 제외하고 변경
+	if( GVari.preAddr.cat == a_cat.value ) {	// 분류가 변경되지 않은 경우, pos를 제외하고 변경
 		console.log( addr );
 		IndexedDB.insert(addr,function(data){
 			dashboard.innerHTML	= "";
@@ -504,35 +471,8 @@ document.getElementById("b_modify").addEventListener("click", function(){
 			}
 		});
 	} else {	// 분류가 변경된 경우 분류의 마지막 addr로 pos를 이동
-
-		// 선택된 분류(Cat)에 위치(pos)의 최대값 가져오기
-		var _promise = function () {
-			return new Promise(function(resolve, reject) {
-				IndexedDB.getCatMaxValue(a_cat.value, function(data){
-					if( data.length == 0 ) {
-						reject(Error("It broke"));
-					} else {
-						resolve(data);
-					}
-				});
-			});
-		};
-
-		var addr;
-		_promise().then(function (data) {
-			console.log( a_cat.value + "'s New Pos" + data );
-			addr.pos	= parseInt( data );
-			IndexedDB.insert(addr,function(data){
-				if( data == true ) {
-					dashboard.innerHTML = "변경된 내용이 " + a_cat.value + "로 이동되어 저장이 되었습니다.";
-				} else {
-					dashboard.innerHTML = "이동 중 오류가 발생하였습니다.<br>천천히 확인 후 다시 시도하세요.";
-				}				
-			});
-		}, function (error) {
-			// 실패시 
-			console.error(error);
-		});
+		movingAddr( a_cat.value, addr );
+		dashboard.innerHTML = "변경된 내용이 " + a_cat.value + "로 이동되어 저장이 되었습니다.";
 	}
 });
 
@@ -565,34 +505,21 @@ document.getElementById("b_deleted").addEventListener("click", function(){
 
 /** 상단 각 분류 표시 */
 function catDisplay(){
-	catBoard.innerHTML = "<table style='width=100%;'><tbody><tr id='catBox'></tr></tbody></table>";
+	//catBoard.innerHTML = "<table style='width=100%;'><tbody><tr id='catBox'></tr></tbody></table>";
+	//catBoard.innerHTML	+= "<tr>";
     IndexedDB.GroupByMenu( function(data){
 		if( data.size == 0 ) {
-			catBoard.innerHTML	+= "등록된 내용이 없습니다. 등록 후 사용하십시오.";
+			catBoard.innerHTML	+= "<td>등록된 내용이 없습니다. 등록 후 사용하십시오.</td>";
 		} else {
-			// console.log(data);
+			//console.log(data);
 			for( var [key, value] of data ) {
 				if( key == "휴지통" ) continue;
-				catBox.innerHTML	+= "<td class='dropzone' onclick=pagedList(1,\"" + key + "\");> " + key + " </a></td>";
+				catBoard.innerHTML	+= "<td class='dropzone' onclick=pagedList(1,\"" + key + "\");> " + key + "</td>";
 			}	
 		}
-    });
-}
-
-function dropOnCatCell(e) {
-	var sel = JSON.parse( e.dataTransfer.getData("text") );
-	var precat = sel.cat;
-	var postcat = e.target.innerText;
-	
-	sel.cat = postcat;
-	IndexedDB.insert(sel,function(data){
-		if(data == true){
-			console.log ( "id:" + sel.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
-		}
 	});
-
-	pagedList( 1, precat ) ;
-	e.preventDefault();
+	//console.log(catBoard.innerHTML);
+	//catBoard.innerHTML	+= "</tr>";
 }
 
 /** Dummy 연락처 생성 */
@@ -727,7 +654,7 @@ document.addEventListener("dragleave", function( event ) {
 	if ( event.target.className == "dropzone" ) {
 		event.target.style.background = "";
 	}
-	console.log( event.target.parentNode );
+	// console.log( event.target.parentNode );
 }, false);
 
 document.addEventListener("drop", function( event ) {
@@ -736,7 +663,7 @@ document.addEventListener("drop", function( event ) {
 
 	var precat	= dragged.childNodes[1].innerHTML;
 	var postcat	= event.target.innerText;
-	var id		= parseInt( dragged.childNodes[0].innerHTML );
+	var id		= parseInt( dragged.childNodes[1].innerHTML );
 
 	// move dragged elem to the selected drop target
 	if ( event.target.className == "dropzone" ) {
@@ -773,7 +700,8 @@ document.addEventListener("drop", function( event ) {
 					dragged.parentNode.removeChild( dragged );	// 화면상에서 선택된 Address 삭제
 					IndexedDB.insert(data,function(data){		// 바뀐 정보로 Update
 						if( data == true ) {
-							console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
+							pagedList(GVari.sel_curPage, GVari.sel_Category );
+							// console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
 						} else {
 							console.log( "이동 중 오류가 발생하였습니다." );
 						}
@@ -866,6 +794,7 @@ document.addEventListener("drop", function( event ) {
 	}
 }, false);
 
+/** 구분, 회사, 부서, 팀, 직급에 대한 목록을 Select Box로 구성함. */
 function genDatalists(){
 	var tdlists = document.getElementById("catlists");
 	var cdlists = document.getElementById("companylists");
@@ -946,3 +875,20 @@ function intval (mixed_var, base) {
     
     tmp = null, type = null;
 }
+
+// function dropOnCatCell(e) {
+// 	var sel = JSON.parse( e.dataTransfer.getData("text") );
+// 	var precat = sel.cat;
+// 	var postcat = e.target.innerText;
+	
+// 	sel.cat = postcat;
+// 	IndexedDB.insert(sel,function(data){
+// 		if(data == true){
+// 			console.log ( "id:" + sel.id + " ( " + precat + " --> " + postcat + ") 이동 완료." );
+// 		}
+// 	});
+
+// 	pagedList( 1, precat ) ;
+// 	e.preventDefault();
+// }
+

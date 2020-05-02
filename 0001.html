@@ -31,11 +31,16 @@ label {
 .dropzone {
 	width: 100px;
 	height: 20px;
-	background: blueviolet;
+	background: whitesmoke;
 	margin-bottom: 10px;
 	padding: 2px;
-	color: white;
+	color: blueviolet;
 	text-align: center;
+}
+.dropzone:hover{
+	background-color:#FFBF80;
+	color: black;
+	text-shadow: -.25px -.25px 0 black, .25px .25px black;
 }
 table {
     font: 13px Verdana, Helvetica, Arial, sans-serif;
@@ -43,21 +48,7 @@ table {
     border-spacing: 0;
     border-collapse: collapse;
 }
-tr:nth-child(even) {
-	background: #F3F4F6;
-}
-tr:nth-child(odd) {
-	background: #FFFFFF;
-}
-.addrlist tr *:nth-child(1) {
-    display: none;
-}
-.addrlist tr *:nth-child(2) {
-    display: none;
-}
-.addrlist tr *:nth-child(13) {
-    display: none;
-}
+
 </style>
 </head>
 <body>
@@ -89,7 +80,8 @@ tr:nth-child(odd) {
 		<button id="b_delete">삭제</button>
 		<button id="b_genData">데이터 자동 생성</button> &nbsp; 
 		<input  id="a_search" type="text" placeholder="조회 문자 입력"><button id="b_search">조회</button> &nbsp; 
-		<button id="b_deleted">휴지통</button>
+		<button id="b_deleted">휴지통</button>  &nbsp; 
+		<button id="b_test">Test Action</button>
 	</fieldset>
 	<fieldset>
 		<legend>설정</legend>
@@ -100,9 +92,23 @@ tr:nth-child(odd) {
 		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*"> &nbsp; 
 		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"> <button id="b_catmax">최대값</button>
 	</fieldset>
-	<div id="catBoard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
-	<div id="dashboard" style="font: 12px Verdana, Helvetica, Arial, sans-serif;"></div>
+	<div style="width:95%; margin:0px auto; display:block;">
+		<div style="padding:3px;"></div>
+		<table class="list02" style="width:100%; height:30px;"><tbody><tr id="catBoard"></tr></tbody></table>
+		<div style="padding:3px;"></div>
+	</div>
+	
+	<div id=list_div style="width:95%; margin:0px auto; display:none;">
+		<table class="list01" style="width:100%;">
+			<thead><tr><th></th><th>ID</th><th>분류</th><th>회사</th><th>부서</th><th>팀</th><th>직급</th><th>이름</th><th>업무</th><th>회사 전화</th><th>휴대 전화</th><th>eMail</th><th>기타</th><th>Pos</th></tr>
+			<tbody id=addrBox></tbody>
+			<tfoot><tr><th colspan='10' id='paging'></th><th colspan='4' id='totalcnt'></th></tr></tfoot>
+		</table>
+	</div>
+
 </body>
 <script src="js/indexedDB.js"></script>
+<script src="js/common.js"></script>
 <script src="js/0001.js"></script>
+<link rel=StyleSheet href="./css/address_book.css" type="text/css" />
 </html>
