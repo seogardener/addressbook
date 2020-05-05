@@ -25,7 +25,7 @@ body {
 
 .list01 {
 	text-align: center;
-	border: 2px solid #FFBF80;
+	border: 2px solid #FFFFFF;
 	border-collapse:collapse;
 	font: 100% Verdana, Helvetica, Arial, sans-serif;
 	line-height: 25px;
@@ -38,7 +38,7 @@ body {
 .list02 {
 	text-align: center;
 	width: 615px;
-	border: 2px solid #FFBF80;
+	border: 2px solid #FFFFFF;
 	border-collapse:collapse;
 	font: 100% Verdana, Helvetica, Arial, sans-serif;
 	line-height: 2em;
@@ -62,7 +62,7 @@ body {
 }
 
 .list02 tbody td {
-	border: 1px solid #FFBF80;
+	border: 1px solid #FFFFFF;
 }
 
 .details {

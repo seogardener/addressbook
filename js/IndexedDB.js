@@ -40,6 +40,7 @@ var IndexedDB = {
 			store.createIndex("emailIdx", "email", { unique : true });
 			store.createIndex('poscatIdx', ['cat', 'pos']);
 			store.createIndex('catcomIdx', ['cat', 'company', 'depart', 'team' ]);
+			store.createIndex("favoIdx", "favo", { unique : false });
 		
 			var index = store.createIndex("keyIndex", id);
 		}
@@ -159,6 +160,45 @@ var IndexedDB = {
 				callback(event);
 			}
 		});
+	},
+
+	getFavo: function (repcnt, callback) {
+		var database = this.getConnection();
+		database.onsuccess = function () {
+			var db = database.result;
+			var tx = db.transaction(IndexedDB.schemaName, "readonly");
+			var index = tx.objectStore(IndexedDB.schemaName).index("favoIdx");
+		
+			var datas	= [];
+			var cnt		= 0;
+			index.openCursor( null, "prev").onsuccess = function (event) {
+				var cursor = event.target.result;
+				if (cursor) {
+					if( cnt < repcnt ) {
+						cnt++;
+						datas.push(cursor.value);
+						cursor.continue();
+					} else {
+						callback(datas);
+					}
+				} else {
+					callback(datas);
+				}
+			};
+			tx.oncomplete = function () {
+				// console.log( "트랜잭션이 종료") ;
+				db.close();
+			};
+			tx.onabort  = function(){
+				console.log( "트랜잭션이 취소" );
+			};
+			tx.onerror = function(){
+				console.log( "트랜잭션이 실패" );
+			};
+		}
+		database.onerror = function (event) {
+			callback(event);
+		}
 	},
 
 	// 선택된 Category내의 최대 Pos 값에 +1 한 값을 리턴한다.
@@ -378,53 +418,6 @@ var IndexedDB = {
 		database.onerror = function (event) {
 			callback(event);
 		}
-	},
-
-	/** 
-	 * 검색어와 매치되는 Address를 목록을 반환
-	 * start : 첫번째 Address의 시작 위치
-	 * total : 반환할 Address의 개수
-	 * txt : 검색어
-	 */
-	searchStr2 : function ( start, total, txt, callback ) {
-
-		var database = this.getConnection();
-		return new Promise(function(resolve, reject) {
-
-			database.onsuccess = function () {
-				var db			= database.result;
-				var tx			= db.transaction(IndexedDB.schemaName, "readonly");
-				var store		= tx.objectStore(IndexedDB.schemaName).index("poscatIdx");
-				var hasSkipped	= false;
-				var datas		= [];
-
-				// console.log('start='+start+' total='+total);
-
-				store.openCursor().onsuccess = function (event) {
-					var cursor = event.target.result;
-					if(!hasSkipped && start > 0) {
-						hasSkipped = true;
-						cursor.advance(start);
-						return;
-					}
-					if (cursor) {
-						// console.log('pushing ',cursor.value);
-						datas.push(cursor.value);
-						if(datas.length < total) {
-							cursor.continue();
-						} else {
-							resolve(datas);
-						}
-					} else {
-						// console.log('resolving ',datas);
-						resolve(datas);
-					}
-				};
-			}
-			database.onerror = function (event) {
-				callback(event);
-			}
-		});
 	},
 
 	/** 

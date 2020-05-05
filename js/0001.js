@@ -4,6 +4,7 @@ window.onload = function() {
 	utils.addListener( document.getElementById('addrfile'), "change",  Doing.addrfile );
 
 	Show.catDisplay();
+	Show.pagedList4Favo();
 	genDatalists();
 }
 
@@ -27,7 +28,7 @@ var Show = {
 
 	/** "전체 목록" 버튼 : 전체 Address 목록 표시 */
 	b_list : function() {
-		pagedList( 1, "ALL" );
+		Show.pagedList( 1, "ALL" );
 	},
 
 	/** Dummy 연락처 생성 */
@@ -36,17 +37,18 @@ var Show = {
 
 		for( var i = 0 ; i < 10 ; i++ ) {
 			i_cat.value = "가족";			//  협력사, 가족사, 퇴사자, 전직동료, 친구, 가족
-			i_company.value = "YOUTUBE";	// 구글, 오라클, IBM, EMC, 애플, 삼성, SONY, PHILIPS, YOUTUBE
-			i_depart.value = "기술본부";	// 경영지원본부 , 기술본부, 사업1본부, 사업3본부, 교육평가연구소,
-			i_team.value = "개발1팀";		// 경영지원팀, 재무팀, 평가팀, 유학사업팀, 콘텐츠사업팀, 신규사업팀, 서비스운영팀, 서비스전략팀, 서비스영업팀, 마케팅사업팀, 디자인팀, 법무팀
-			i_posit.value = "매니저" + val;
-			i_name.value = "홍" + val;
-			i_job.value = "시스템" + val;
-			i_phone.value = "02-0000-" + val;
-			i_cell.value = "010-0000-" + val;
-			i_email.value = val + "@gmail.com";
-			i_etc.value = val;
-			//i_pos.value = i;
+			i_company.value	= "YOUTUBE";	// 구글, 오라클, IBM, EMC, 애플, 삼성, SONY, PHILIPS, YOUTUBE
+			i_depart.value	= "기술본부";	// 경영지원본부 , 기술본부, 사업1본부, 사업3본부, 교육평가연구소,
+			i_team.value	= "개발1팀";		// 경영지원팀, 재무팀, 평가팀, 유학사업팀, 콘텐츠사업팀, 신규사업팀, 서비스운영팀, 서비스전략팀, 서비스영업팀, 마케팅사업팀, 디자인팀, 법무팀
+			i_posit.value	= "매니저" + val;
+			i_name.value	= "홍" + val;
+			i_job.value		= "시스템" + val;
+			i_phone.value	= "02-0000-" + val;
+			i_cell.value	= "010-0000-" + val;
+			i_email.value	= val + "@gmail.com";
+			i_etc.value		= val;
+			i_favo.value	= 0;
+			//i_pos.value	= i;
 			//i_id.value	= "";
 			
 			val = Math.floor(1000 + Math.random() * 9000);
@@ -81,12 +83,14 @@ var Show = {
 		detail_email.innerHTML		= "  &nbsp; " +data.email;
 		detail_etc.innerHTML		= "  &nbsp; " +data.etc;
 		detail_pos.innerHTML		= "  &nbsp; " +data.pos;
+		detail_favo.innerHTML		= "  &nbsp; " +data.favo;
 
 		cbutton.innerHTML	= "<b onclick='Show.offDetail();'>닫기</b>";
 		document.getElementById("address_detail_view").style.display	= 'block';
 	},
 
 	offDetail : function() {
+		Doing.cntChkFavo();
 		document.getElementById("address_detail_view").style.display	= 'none';
 	},
 
@@ -108,6 +112,7 @@ var Show = {
 		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email placeholder="abc@abc.com">';
 		detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc placeholder="최대 20자">';
 		detail_pos.innerHTML		= '  &nbsp; 자동 부여 됨';
+		detail_favo.innerHTML		= '  &nbsp; <input type=text id=i_favo placeholder="숫자 입력">';
 
 		cbutton.innerHTML	= "<b onclick='Show.offDetail();'>취소</b> | <b onclick='Doing.insert();'>등록</b>";
 		document.getElementById("address_detail_view").style.display	= 'block';
@@ -124,12 +129,13 @@ var Show = {
 		detail_depart.innerHTML		= '  &nbsp; <input type=text id=i_depart value="' + data.depart + '" list="deplists"> &nbsp; [ 최대 20자 ]' + GVari.deplists;
 		detail_team.innerHTML		= '  &nbsp; <input type=text id=i_team value="' + data.team + '" list="tealists"> &nbsp; [ 최대 20자 ]' + GVari.tealists;
 		detail_posit.innerHTML		= '  &nbsp; <input type=text id=i_posit value="' + data.posit + '" list="poslists"> &nbsp; [ 최대 20자 ]' + GVari.poslists;
-		detail_name.innerHTML		= '  &nbsp; <input type=text id=i_name value="' + data.id + '"> &nbsp; [ 최대 20자 ]';
+		detail_name.innerHTML		= '  &nbsp; <input type=text id=i_name value="' + data.name + '"> &nbsp; [ 최대 20자 ]';
 		detail_job.innerHTML		= '  &nbsp; <input type=text id=i_job value="' + data.job + '"> &nbsp; [ 최대 20자 ]';
 		detail_phone.innerHTML		= '  &nbsp; <input type=text id=i_phone value="' + data.phone + '"> &nbsp; [ 최대 20자 ]';
 		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell value="' + data.cell + '"> &nbsp; [ 최대 20자 ]';
 		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email value="' + data.email + '"> &nbsp; [ 최대 20자 ]';
 		detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc value="' + data.etc + '"> &nbsp; [ 최대 20자 ]';
+		detail_favo.innerHTML		= '  &nbsp; <input type=text id=i_favo value="' + data.favo + '"> &nbsp; [ 숫자 ]';
 		// detail_pos.innerHTML		= '  &nbsp; <input type=text id=i_pos value=' + data.pos + '> &nbsp; [ 최대 20자 ]';
 
 		cbutton.innerHTML	= "<b onclick='Doing.update();'>적용</b>";
@@ -151,7 +157,7 @@ var Show = {
 					if( key == cell ) {		// 선택된 Category는 표시하기
 						catBoard.innerHTML	+= "<td style='background-color:#FFBF80; color:white; font-weight: bold;' class='dropzone' onclick=pagedList(1,\"" + key + "\");>" + key + "</td>";
 					} else {
-						catBoard.innerHTML	+= "<td class='dropzone' onclick=pagedList(1,\"" + key + "\");>" + key + "</td>";
+						catBoard.innerHTML	+= "<td class='dropzone' onclick=Show.pagedList(1,\"" + key + "\");>" + key + "</td>";
 					}
 				}
 			}
@@ -175,13 +181,6 @@ var Show = {
 			alert("  최소 글자 수는 2자 이상입니다. \n\r  다시 입력해주세요.");
 			return false;
 		}
-
-		var htmlData	= "<br><table style='width:100%;'>";
-		htmlData	+= "<thead><tr style='background-color:#F5CF6A;'><th></th><th>ID</th><th>분류</th><th>회사</th><th>부서</th><th>팀</th><th>직급</th><th>이름</th><th>업무</th><th>회사 전화</th><th>휴대 전화</th><th>eMail</th><th>기타</th><th>Pos</th></tr></thead>";
-		htmlData	+= "<tbody id='addrBox'></tbody>";
-		htmlData	+= "<tfoot><tr><td colspan=8><input type='checkbox' onClick='toggle4cb(this)'> 전체 선택</td><td colspan=6 style='text-align: right;'>이동 &nbsp; 삭제 &nbsp; 추가 &nbsp; </td></tr><tr><th colspan='10' id='paging'></th><th colspan='4' id='totalcnt'></th></tr></tfoot></table><br>";
-
-		//dashboard.innerHTML	= htmlData;
 
 		var cperpage	= 15,
 			totalpost	= 0,
@@ -227,7 +226,7 @@ var Show = {
 		addrBox.innerHTML	= "";
 		IndexedDB.searchStr( start, cperpage, txt, function( data ) {
 			var lng	= data.length;
-			if( lng == 0 ) pagedList( curPage - 1, cat );
+			if( lng == 0 ) Show.searchList( curPage - 1 );
 			GVari.addrList = data;
 			for( var i = 0 ; i < lng ; i++ ){
 				addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
@@ -244,12 +243,16 @@ var Show = {
 	/** 기능 테스트 시험을 위한 행위 */
 	b_test : function(){
 		//var addrBox	= document.getElementById('addrBox');
-		console.log( GVari.catlists );
-		console.log( GVari.comlists );
-		console.log( GVari.deplists );
-		console.log( GVari.tealists );
-		console.log( GVari.poslists );
-		//console.log( GVari.addrList.length );
+		// console.log( GVari.catlists );
+		Show.pagedList4Favo();
+
+		// IndexedDB.getFavo( function(data){
+		// 	if( data.size == 0 ) {
+		// 		console.log("등록된 Favority가 없습니다.");
+		// 	} else {
+		// 		console.log( data);
+		// 	}
+		// });
 	},
 
 	/** 
@@ -298,14 +301,131 @@ var Show = {
 			// 실패시 
 			console.error(error);
 		});
-	}
+	},
 
+	/**
+	 * 전체 Address 목록 표시
+	 * curPage : 시작 페이지
+	 * cat : 분류 이름, 전체는 "ALL"
+	 */
+	pagedList : function ( curPage, cat ) {
+		GVari.sel_curPage	= curPage;
+		GVari.sel_Category	= cat;
 
+		var cperpage	= 15,
+			totalpost	= 0,
+			start		= ( curPage - 1 ) * cperpage;
 
+		/** 상단 Category 매뉴 표시 */
+		Show.catDisplay();
+
+		/** 전체 Address 갯수 값을 가져와서 하단 네비게이션 바 생성 */
+		IndexedDB.countCat( cat, function( data ) {
+			totalpost	= parseInt( data );
+
+			// console.log( "Count : "  + cat + " : " + data );
+			if( totalpost > cperpage ) {
+				// 하단 네비게이션 메뉴 바 표시
+				//totalcnt.style.backgroundColor	= "#54D1F1";
+				//paging.style.backgroundColor	= "#54D1F1";
+
+				if( ! ( curPage > 0 ) )		curPage	= 1;
+
+				var pagePerBlock = 5,	// NavigationBar 항목 갯수
+					totalPage	= Math.ceil( totalpost / cperpage ),
+					prev		= intval( (curPage - 1) / pagePerBlock ) * pagePerBlock,
+					num			= totalPage - prev,
+					page_link	= "",
+					page		= 0;
+				totalcnt.innerHTML	= "[ " + curPage + " / " + totalPage + " ]";
+				if(num > pagePerBlock)	num = pagePerBlock;
+				if( prev )	page_link = "<a onclick='Show.pagedList(1,\"" + cat + "\");'>[<<]</a> &nbsp; <a onclick='Show.pagedList(" + prev + ",\"" + cat + "\");'>[<]</a> &nbsp; &nbsp; ";
+				for( i = 0 ;  i < num ; i++ ) {
+				page = prev + i + 1;
+				if ( page == curPage )	page_link += "[" + page + "] &nbsp; ";
+				else						page_link += "<a onclick='Show.pagedList(" + page + ",\"" + cat + "\");' onFocus='this.blur()' style='cursor: pointer;'>" + page + "</a> &nbsp; ";
+				}
+				var next = page + 1;
+				if( totalPage >= next )		page_link += " &nbsp; <a onclick='Show.pagedList(" + next + ",\"" + cat + "\");'>[>]</a> &nbsp; <a onclick='Show.pagedList(" + totalPage + ",\"" + cat + "\");'>[>>]</a>";
+				paging.innerHTML = page_link;
+			} else {
+				//totalcnt.style.backgroundColor	= "#FFFFFF";
+				//paging.style.backgroundColor	= "#FFFFFF";
+				totalcnt.innerHTML	= "[ 1 / 1 ]";
+				paging.innerHTML	= "[1]";
+			}
+		});
+
+		/** 갯수(cperpage) 만큼 Address 를 가져와서 표시 */
+		addrBox.innerHTML	= "";
+		IndexedDB.getData( start, cperpage, cat ).then( function( data ) {
+			var lng	= data.length;
+			if( lng == 0 ) Show.pagedList( curPage - 1, cat );
+			GVari.addrList = data;
+			for( var i = 0 ; i < lng ; i++ ){
+				addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
+					+ data[i].team + "</td><td>" 
+					+ data[i].posit + "</td><td>" 
+					+ data[i].name + "</td><td>" 
+					+ data[i].job + "</td><td>" 
+					+ data[i].cell + "</td></tr>";
+			}
+			Common.tblRollOver(document.getElementById("addrBox"));
+
+		});
+
+		document.getElementById("list_div").style.display	= 'block';
+	},
+
+	/**
+	 * 전체 Address 목록 표시
+	 * curPage : 시작 페이지
+	 * cat : 분류 이름, 전체는 "ALL"
+	 */
+	pagedList4Favo : function () {
+
+		GVari.sel_Category	= "";
+		Show.catDisplay();
+
+		/** 갯수(15) 만큼 Address 를 가져와서 표시 */
+		addrBox.innerHTML	= "";
+		IndexedDB.getFavo( 15, function( data ) {
+			var lng	= data.length;
+			GVari.addrList = data;
+			for( var i = 0 ; i < lng ; i++ ){
+				addrBox.innerHTML += "<tr><td>" + data[i].company + "</td><td>" 
+					+ data[i].team + "</td><td>" 
+					+ data[i].posit + "</td><td>" 
+					+ data[i].name + "</td><td>" 
+					+ data[i].job + "</td><td>" 
+					+ data[i].cell + "</td></tr>";
+			}
+			Common.tblRollOver(document.getElementById("addrBox"));
+		});
+		totalcnt.innerHTML	= "";
+		paging.innerHTML	= "[ Top 15 Address List ]";
+		document.getElementById("list_div").style.display	= 'block';
+	},
 
 };
 
 var Doing = {
+
+	/** 조회수 Counting */
+	cntChkFavo : function() {
+		var addr	= GVari.addr;
+		if( addr.favo == undefined )	addr.favo	= 1;
+		else							addr.favo	= addr.favo + 1;
+
+		IndexedDB.insert(addr,function(data){
+			if( data == true ) {
+				//console.log ( addr.name + " : 이동 완료." );
+				//Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
+			} else {
+				console.log( "조회수 Counting 중 오류 발생." );
+			}
+		});
+	},
 
 	/** "등록" 버튼 */
 	insert : function() {
@@ -321,7 +441,8 @@ var Doing = {
 			phone:i_phone.value, 
 			cell:i_cell.value, 
 			email:i_email.value, 
-			etc:i_etc.value
+			etc:i_etc.value,
+			favo:parseInt( i_favo.value )
 			//id:
 		}
 
@@ -355,6 +476,7 @@ var Doing = {
 			postData	+= "\ne-Mail : " + data.email;
 			postData	+= "\n기타 : " + data.etc;
 			postData	+= "\n순번 : " + data.pos;
+			postData	+= "\n조회수 : " + data.favo;
 
 		if( confirm( postData ) ) {
 			Doing.movingAddr( "휴지통" , data );
@@ -388,7 +510,7 @@ var Doing = {
 			IndexedDB.insert(addr,function(data){
 				if( data == true ) {
 					//console.log ( addr.name + " : 이동 완료." );
-					pagedList(GVari.sel_curPage, GVari.sel_Category );
+					Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
 				} else {
 					console.log( "이동 중 오류가 발생하였습니다." );
 				}
@@ -418,6 +540,7 @@ var Doing = {
 			cell:i_cell.value, 
 			email:i_email.value, 
 			etc:i_etc.value,
+			favo:parseInt( i_favo.value ),
 			pos:parseInt( data.pos )	// pos 변경 불가
 		}
 
@@ -425,7 +548,7 @@ var Doing = {
 		if( data.cat == i_cat.value ) {	// 분류(Category)가 변경되지 않은 경우, pos를 제외하고 변경
 			// console.log( addr );
 			IndexedDB.insert(addr,function(data){
-				dashboard.innerHTML	= "";
+				//dashboard.innerHTML	= "";
 				if(data == true){
 					// console.log( "수정 완료" );
 				} else {
@@ -498,7 +621,7 @@ var Doing = {
 /* Address Book */
 
 function clearForm() {
-	i_id.value		= "";
+	i_id.value		= 0;
 	i_name.value	= "";
 	i_cat.value		= "";
 	i_company.value	= "";
@@ -511,110 +634,10 @@ function clearForm() {
 	i_cell.value	= "";
 	i_email.value	= "";
 	i_etc.value		= "";
-	i_pos.value		= "";
+	i_pos.value		= 0;
+	i_favo.value	= 0;
 };
 
-/**
- * 전체 Address 목록 표시
- * curPage : 시작 페이지
- * cat : 분류 이름, 전체는 "ALL"
- */
-function pagedList( curPage, cat ) {
-	GVari.sel_curPage	= curPage;
-	GVari.sel_Category	= cat;
-
-	var cperpage	= 15,
-		totalpost	= 0,
-		start		= ( curPage - 1 ) * cperpage;
-
-	/** 상단 Category 매뉴 표시 */
-	Show.catDisplay();
-
-	/** 전체 Address 갯수 값을 가져와서 하단 네비게이션 바 생성 */
-	IndexedDB.countCat( cat, function( data ) {
-		totalpost	= parseInt( data );
-
-		// console.log( "Count : "  + cat + " : " + data );
-		if( totalpost > cperpage ) {
-			// 하단 네비게이션 메뉴 바 표시
-			//totalcnt.style.backgroundColor	= "#54D1F1";
-			//paging.style.backgroundColor	= "#54D1F1";
-
-			if( ! ( curPage > 0 ) )		curPage	= 1;
-
-			var pagePerBlock = 5,	// NavigationBar 항목 갯수
-				totalPage	= Math.ceil( totalpost / cperpage ),
-				prev		= intval( (curPage - 1) / pagePerBlock ) * pagePerBlock,
-				num			= totalPage - prev,
-				page_link	= "",
-				page		= 0;
-			totalcnt.innerHTML	= "[ " + curPage + " / " + totalPage + " ]";
-			if(num > pagePerBlock)	num = pagePerBlock;
-			if( prev )	page_link = "<a onclick='pagedList(1,\"" + cat + "\");'>[<<]</a> &nbsp; <a onclick='pagedList(" + prev + ",\"" + cat + "\");'>[<]</a> &nbsp; &nbsp; ";
-			for( i = 0 ;  i < num ; i++ ) {
-			   page = prev + i + 1;
-			   if ( page == curPage )	page_link += "[" + page + "] &nbsp; ";
-			   else						page_link += "<a onclick='pagedList(" + page + ",\"" + cat + "\");' onFocus='this.blur()' style='cursor: pointer;'>" + page + "</a> &nbsp; ";
-			}
-			var next = page + 1;
-			if( totalPage >= next )		page_link += " &nbsp; <a onclick='pagedList(" + next + ",\"" + cat + "\");'>[>]</a> &nbsp; <a onclick='pagedList(" + totalPage + ",\"" + cat + "\");'>[>>]</a>";
-			paging.innerHTML = page_link;
-		} else {
-			//totalcnt.style.backgroundColor	= "#FFFFFF";
-			//paging.style.backgroundColor	= "#FFFFFF";
-			totalcnt.innerHTML	= "[ 1 / 1 ]";
-			paging.innerHTML	= "[1]";
-		}
-	});
-
-	/** 갯수(cperpage) 만큼 Address 를 가져와서 표시 */
-	addrBox.innerHTML	= "";
-	IndexedDB.getData( start, cperpage, cat ).then( function( data ) {
-		var lng	= data.length;
-		if( lng == 0 ) pagedList( curPage - 1, cat );
-		GVari.addrList = data;
-		for( var i = 0 ; i < lng ; i++ ){
-			addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
-				+ data[i].team + "</td><td>" 
-				+ data[i].posit + "</td><td>" 
-				+ data[i].name + "</td><td>" 
-				+ data[i].job + "</td><td>" 
-				+ data[i].cell + "</td></tr>";
-		}
-		Common.tblRollOver(document.getElementById("addrBox"));
-
-	});
-
-	document.getElementById("list_div").style.display	= 'block';
-};
-
-/**
- * 목록에서 선택한 Address에 대한 상세 정보를 보여줌.
- * @param {*} id 
- */
-function select(id){
-	IndexedDB.selectId( id, function(data){
-		// dashboard.innerHTML = JSON.stringify(data) + "<br>";
-		// dashboard.innerHTML	+= "선택 완료.";
-		a_id.value = data.id;
-		a_cat.value = data.cat,
-		a_company.value = data.company;
-		a_depart.value = data.depart;
-		a_team.value = data.team; 
-		a_posit.value = data.posit; 
-		a_name.value = data.name;
-		a_job.value = data.job;
-		a_phone.value = data.phone;
-		a_cell.value = data.cell;
-		a_email.value = data.email;
-		a_etc.value = data.etc;
-		a_pos.value = data.pos;
-
-		GVari.addr	= data;		// 변경전 Addr 저장, Global Variable
-	});
-
-};
-	
 /* File Control Zone */
 function isText(type){
 	return type.match(/^text/g);
@@ -724,7 +747,7 @@ document.addEventListener("drop", function( event ) {
 					dragged.parentNode.removeChild( dragged );	// 화면상에서 선택된 Address 삭제
 					IndexedDB.insert(data,function(data){		// 바뀐 정보로 Update
 						if( data == true ) {
-							pagedList(GVari.sel_curPage, GVari.sel_Category );
+							Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
 							// console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
 						} else {
 							console.log( "이동 중 오류가 발생하였습니다." );

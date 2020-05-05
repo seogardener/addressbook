@@ -74,11 +74,12 @@ table {
 		<div style="padding:3px;"></div>
 		<table class="list01" style="width:100%; height:30px; background-color:#BBD9EE;">
 			<tfoot><tr><td>
-				<a onclick='Show.b_test();'>TestAction</a> / 
-				<a onclick='pagedList( 1, "휴지통" );'>휴지통</a> / 
-				<a onclick='Show.b_list();'>전체 목록</a> / 
-				<a onclick='Show.backup();'>데이터 백업</a> / 
-				<a onclick='Doing.db_delete();'>전체 데이터 삭제</a> / 
+				<a onclick='Show.b_test();'>Test</a> / 
+				<a onclick='Show.pagedList4Favo();'>Top15</a> / 
+				<a onclick='Show.pagedList( 1, "휴지통" );'>휴지통</a> / 
+				<a onclick='Show.b_list();'>전체</a> / 
+				<a onclick='Show.backup();'>전체 백업</a> / 
+				<a onclick='Doing.db_delete();'>전체 삭제</a> / 
 				일괄 입력 <input type="file" id="addrfile" accept="text/*"> /
 				<input id=a_search size=12 placeholder="조회" onkeypress='Show.doSearch0();'> 
 			</td></tr></tfoot></table>
@@ -111,6 +112,7 @@ table {
 				<tr><th>휴대 전화 &nbsp; </th><td id="detail_cellphone"></td></tr>
 				<tr><th>eMail &nbsp; </th><td id="detail_email"></td></tr>
 				<tr><th>기타 정보 &nbsp; </th><td id="detail_etc"></td></tr>
+				<tr><th>조회수 &nbsp; </th><td id="detail_favo"></td></tr>
 			</tbody>
 			<tfoot>
 				<tr><th colspan="2" id="cbutton"></th></tr>
