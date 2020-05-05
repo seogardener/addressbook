@@ -56,42 +56,6 @@ table {
     <img src="img/xofficecontact_103670.png" class ="dragContact" />
     <img src="img/vcsremoved_93492.png" class ="dragStop" />
 </div>
-	<fieldset>
-		<legend>업무 연락처 상세 내용</legend>
-		<input id="a_id" type="hidden">
-		<label for="a_cat">구분</label> <input id="a_cat" type="text" list="catlists"> <datalist id="catlists"></datalist>
-		<label for="a_company">회사</label> <input id="a_company" type="text" list="companylists"> <datalist id="companylists"></datalist>
-		<label for="a_depart">부서</label>  <input id="a_depart"  type="text" list="departlists"> <datalist id="departlists"></datalist>
-		<br>
-		<label for="a_team">팀</label>    <input id="a_team"  type="text" list="teamlists"> <datalist id="teamlists"></datalist>
-		<label for="a_posit">직급</label> <input id="a_posit" type="text" list="positlists"> <datalist id="positlists"></datalist>
-		<label for="a_name">이름</label>  <input id="a_name"  type="text">
-		<br>
-		<label for="a_job">업무</label>        <input id="a_job"   type="text">
-		<label for="a_phone">회사 전화</label> <input id="a_phone" type="text">
-		<label for="a_cell">휴대 전화</label>  <input id="a_cell"  type="text">
-		<br>
-		<label for="a_email">e-Mail</label> <input id="a_email" type="text">
-		<label for="a_etc">기타</label>     <input id="a_etc"   type="text">
-		<label for="a_pos">순번</label>     <input id="a_pos"   type="text">
-		<br><br>
-		<button id="b_insert">등록</button>
-		<button id="b_modify">수정</button>
-		<button id="b_delete">삭제</button>
-		<button id="b_genData">데이터 자동 생성</button> &nbsp; 
-		<input  id="a_search" type="text" placeholder="조회 문자 입력"><button id="b_search">조회</button> &nbsp; 
-		<button id="b_deleted">휴지통</button>  &nbsp; 
-		<button id="b_test">Test Action</button>
-	</fieldset>
-	<fieldset>
-		<legend>설정</legend>
-		IndexedDB Name : AddressDB <br>
-		<button id="b_list">전체 목록</button>  &nbsp; 
-		<button id="b_db_delete">전체 데이터 삭제</button> &nbsp; 
-		<button id="b_backup">Data 백업</button> &nbsp; 
-		Data 추가를 위한 파일 선택 : <input type="file" id="addrfile" accept="text/*"> &nbsp; 
-		<input  id="a_catmax" type="text" list="catlists" placeholder="분류 선택"> <button id="b_catmax">최대값</button>
-	</fieldset>
 	<div style="width:95%; margin:0px auto; display:block;">
 		<div style="padding:3px;"></div>
 		<table class="list02" style="width:100%; height:30px;"><tbody><tr id="catBoard"></tr></tbody></table>
@@ -100,12 +64,63 @@ table {
 	
 	<div id=list_div style="width:95%; margin:0px auto; display:none;">
 		<table class="list01" style="width:100%;">
-			<thead><tr><th></th><th>ID</th><th>분류</th><th>회사</th><th>부서</th><th>팀</th><th>직급</th><th>이름</th><th>업무</th><th>회사 전화</th><th>휴대 전화</th><th>eMail</th><th>기타</th><th>Pos</th></tr>
+			<thead><tr><th width=15%>회사</th><th width=15%>팀</th><th width=15%>직급</th><th width=15%>이름</th><th width=20%>업무</th><th width=20%>휴대 전화</th></tr>
 			<tbody id=addrBox></tbody>
-			<tfoot><tr><th colspan='10' id='paging'></th><th colspan='4' id='totalcnt'></th></tr></tfoot>
+			<tfoot style='background-color:#54D1F1;'><tr><td colspan='4' id='paging'></td><td id='totalcnt'></td><td><a onclick='Show.insert();'>[+]</a></td></tr></tfoot>
 		</table>
 	</div>
 
+	<div style="width:95%; margin:0px auto;">
+		<div style="padding:3px;"></div>
+		<table class="list01" style="width:100%; height:30px; background-color:#BBD9EE;">
+			<tfoot><tr><td>
+				<a onclick='Show.b_test();'>TestAction</a> / 
+				<a onclick='pagedList( 1, "휴지통" );'>휴지통</a> / 
+				<a onclick='Show.b_list();'>전체 목록</a> / 
+				<a onclick='Show.backup();'>데이터 백업</a> / 
+				<a onclick='Doing.db_delete();'>전체 데이터 삭제</a> / 
+				일괄 입력 <input type="file" id="addrfile" accept="text/*"> /
+				<input id=a_search size=12 placeholder="조회" onkeypress='Show.doSearch0();'> 
+			</td></tr></tfoot></table>
+	</div>
+
+	<div id="address_detail_view" class="modal" style="display:none;">
+		<div class="modal-window" style="width:600px;">
+	
+		<table class="details" style="width:100%;">
+			<thead>
+				<tr>
+					<th colspan="2">
+						<div id="textbox">
+							<p style="float: left; margin: 0px 0px 0px 10px;" id="cltitle"></p>
+							<p style="font: 14px Verdana; float: right; margin: 10px 10px 0px 0px; cursor: pointer;" id="td_title2"></p>
+						</div>
+					</th>                
+				</tr>
+			</thead>
+			<tbody>
+				<tr><th style="width:150px;">구분 &nbsp; </th><td id="detail_cat"></td></tr>
+				<tr><th>순번 &nbsp; </th><td id="detail_pos"></td></tr>
+				<tr><th>회사 &nbsp; </th><td id="detail_company"></td></tr>
+				<tr><th>부서 &nbsp; </th><td id="detail_depart"></td></tr>
+				<tr><th>팀 &nbsp; </th><td id="detail_team"></td></tr>
+				<tr><th>업무 &nbsp; </th><td id="detail_job"></td></tr>
+				<tr><th>직급 &nbsp; </th><td id="detail_posit"></td></tr>
+				<tr><th>이름 &nbsp; </th><td id="detail_name"></td></tr>
+				<tr><th>회사 전화 &nbsp; </th><td id="detail_phone"></td></tr>
+				<tr><th>휴대 전화 &nbsp; </th><td id="detail_cellphone"></td></tr>
+				<tr><th>eMail &nbsp; </th><td id="detail_email"></td></tr>
+				<tr><th>기타 정보 &nbsp; </th><td id="detail_etc"></td></tr>
+			</tbody>
+			<tfoot>
+				<tr><th colspan="2" id="cbutton"></th></tr>
+			</tfoot>
+		</table>
+	
+		</div>
+	</div>
+
+	
 </body>
 <script src="js/indexedDB.js"></script>
 <script src="js/common.js"></script>

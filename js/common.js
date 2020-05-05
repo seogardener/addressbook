@@ -2,7 +2,6 @@ var Common = {
 	tblRollOver : function( tbody_id ) {
 		try {
 			var trItem;
-			console.log(tbody_id.rows.length);
 			for( var i =0, rowsCnt = tbody_id.rows.length ; i < rowsCnt ; i++ ) {
 				trItem = tbody_id.rows[i];
 				if( i%2 == 1 ) {

@@ -65,6 +65,40 @@ body {
 	border: 1px solid #FFBF80;
 }
 
+.details {
+	font: 14px Verdana, Helvetica, Arial, sans-serif;
+    text-align: center;
+    line-height: 25px;
+    border-left: 5px solid #54D1F1;
+    border-right: 5px solid #54D1F1;
+}
+
+.details thead {
+    font: 17px Verdana, Helvetica, Arial, sans-serif;
+	background-color:#54D1F1;
+	color:#4D5D6A;
+    line-height: 30px;
+}
+
+.details tbody th {
+    background-color: #F1EFE2;
+    color: #4D5D6A;
+	text-align: right;
+	border-right: 5px solid #F1EFE2;
+}
+
+.details tbody td {
+    color: black;
+    text-align: left;
+    border-bottom: 1px solid #F1EFE2;
+}
+
+.details tfoot th {
+	background-color: #54D1F1;
+	color:#4D5D6A;
+    line-height: 30px;
+}
+
 .highlight {
 	background: #BBD9EE;
 	color: white;

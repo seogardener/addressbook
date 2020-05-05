@@ -216,7 +216,7 @@ var IndexedDB = {
 			var db		= database.result;
 			var tx		= db.transaction(IndexedDB.schemaName, "readwrite");
 			var store	= tx.objectStore(IndexedDB.schemaName);
-			//console.log( val );
+			// console.log( val );
 			store.put(val);
 		
 			tx.oncomplete = function () {
@@ -508,54 +508,3 @@ var IndexedDB = {
 		}
 	}
 }
-
-// delete: function (id, callback) {
-// 	var database = this.getConnection();
-// 	database.onsuccess = function () {
-// 		var db = database.result;
-// 		var tx = db.transaction(IndexedDB.schemaName, "readwrite");
-// 		var store = tx.objectStore(IndexedDB.schemaName);
-	
-// 		store.delete(id);
-	
-// 		tx.oncomplete = function () {
-// 			console.log( "트랜잭션이 종료") ;
-// 			db.close();
-// 			callback(1);
-// 		};
-// 		tx.onabort  = function(){
-// 			console.log( "트랜잭션이 취소" );
-// 		};
-// 		tx.onerror = function(){
-// 			console.log( "트랜잭션이 실패" );
-// 		};
-// 	}
-	
-// 	database.onerror = function (event) {
-// 		callback(event);
-// 	}
-// },
-
-	// selectOne: function (id, callback) {
-	// 	var database = this.getConnection();
-	// 	database.onsuccess = function () {
-	// 		var db = database.result;
-	// 		var tx = db.transaction(IndexedDB.schemaName, "readonly");
-	// 		var store = tx.objectStore(IndexedDB.schemaName);
-
-	// 		var data = store.get(id);
-	// 		data.onsuccess = function () {
-	// 			// console.log( data.result );
-	// 			callback(data.result);
-	// 		}
-	// 		tx.oncomplete = function () {
-	// 			// console.log( "연결 종료") ;
-	// 			db.close();
-	// 		};
-	// 	}
-		
-	// 	database.onerror = function (event) {
-	// 		callback(event);
-	// 	}
-	// },
-
