@@ -71,6 +71,8 @@ var Show = {
 		cltitle.innerHTML		= data.company + " &nbsp; " + data.job + " &nbsp; " + data.name + " &nbsp; " + data.posit;
 		td_title2.innerHTML		= "<b onclick='Doing.remove();'>삭제</b> | <b onclick='Show.update();'>수정</b>";
 
+		if( data.favo == undefined )	data.favo	= 1;
+
 		detail_cat.innerHTML		= "  &nbsp; " + data.cat;
 		detail_company.innerHTML	= "  &nbsp; " +data.company;
 		detail_depart.innerHTML		= "  &nbsp; " +data.depart;
@@ -123,6 +125,8 @@ var Show = {
 
 		cltitle.innerHTML		= data.name + " 정보 수정";
 		td_title2.innerHTML		= "<b onclick='Show.offDetail();'>취소</b>";
+
+		if( data.favo == undefined )	data.favo	= 1;
 
 		detail_cat.innerHTML		= '  &nbsp; <input type=text id=i_cat value="' + data.cat + '" list="catlists"> &nbsp; [ 최대 20자 ]' + GVari.catlists;
 		detail_company.innerHTML	= '  &nbsp; <input type=text id=i_company value="' + data.company + '" list="comlists"> &nbsp; [ 최대 20자 ]' + GVari.comlists;
