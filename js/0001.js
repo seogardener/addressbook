@@ -14,7 +14,7 @@ IndexedDB.createSchema('id');
 /** 변경전 Addr의 내용이 저장 */
 var GVari = {
 	addrList	: [],	// 목록 내용 저장
-	addr		: [],
+	addr		: [],	// 선택된 Address
 	sel_Category: "",	// 선택된 Category
 	sel_curPage : 1,	// 선택된 현재 page
 	catlists	: "",
@@ -60,6 +60,7 @@ var Show = {
 	details : function( event ) {
 		var data, clickElement, idx;
 
+		console.log( event );
 		if( event == undefined ) {	// 직접 호출인 경우
 			data	= GVari.addr;
 		} else {					// list를 통한 선택 호출이 경우
@@ -690,35 +691,40 @@ function isText(type){
 
 /* Drag&Drop Zone */
 
-var dragged;
-var oldidx;
-var newidx;
+//var dragged;
+var g_oldidx;
+var g_newidx;
 
 // images-preloader
 (new Image()).src = "img/xofficecontact_103670.png";
 
 /* events fired on the draggable target */
-document.addEventListener("drag", function( event ) { }, false);
+document.addEventListener("drag", function( event ) { 
+	var clickElement	= event.target || event.srcElement;
+	g_oldidx			= clickElement.rowIndex - 1;
+}, false);
 
 document.addEventListener("dragstart", function( event ) {
 	// store a ref. on the dragged elem
-	dragged = event.target;
-	oldidx	= event.target.sectionRowIndex;
+	var clickElement	= event.target || event.srcElement;
+	//dragged = event.target;
+	//g_oldidx	= event.target.sectionRowIndex;
 
 	// make it half transparent
-	event.target.style.opacity = 5;
-	event.target.style.border = "1px solid #cccccc";
+	clickElement.style.opacity = 5;
+	clickElement.style.border = "1px solid #cccccc";
 	
 	var img = new Image();
 	img.src = "img/xofficecontact_103670.png";
 	event.dataTransfer.setDragImage(img, 25, 25);
 	
-	event.dataTransfer.setData("text/plain", event.target.cells[0].innerText );
+	//event.dataTransfer.setData("text/plain", clickElement.cells[0].innerText );
 }, false);
 
 document.addEventListener("dragend", function( event ) {
 	// reset the transparency
 	event.target.style.opacity = "";
+	//console.log( "???" );
 }, false);
 
 /* events fired on the drop targets */
@@ -728,122 +734,132 @@ document.addEventListener("dragover", function( event ) {
 }, false);
 
 // highlight potential drop target when the draggable element enters it
+// 선택된 항목을 끌면서 아래에 놓이게 되는 항목에 대한 액션
 document.addEventListener("dragenter", function( event ) {
-	var seledCat = dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
-	var overCat = event.toElement.innerText;
-	
-	if( seledCat != overCat ) {
-	
-		if ( event.target.className == "dropzone" ) {
-			event.target.style.background = "purple";
-		}
-		event.dataTransfer.dropEffect = "copy";
+	// var seledCat = dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
+	// var selAddr	= GVari.addrList[g_oldidx];
+	// var seledCat = selAddr.cat;		// 끌리고 있는 Address의 Category 이름 저장
+	// console.log( event.target.parentNode );
+
+	//console.log( event.target.parentNode.parentNode.id + "/" +event.target.parentNode.id );
+	if( event.target.parentNode.parentNode.id == "addrBox") {
+		//event.target.parentNode.style.background = "purple";
+		//event.target.parentNode.style.fontWeight="bold";
+		event.target.parentNode.style.borderTop  = "2px solid #cccccc";
+	} else if( event.target.parentNode.id == "catBoard") {
+		event.target.style.fontWeight="bold";
+		//event.target.style.background = "purple";
 	}
+	//event.dataTransfer.dropEffect = "copy";
+
+	// var clickElement	= event.target || event.srcElement,
+	// 	idx				= clickElement.parentNode.rowIndex - 1;
+	// var overAddr		= GVari.addrList[idx];
+	// var overCat			= overAddr.cat;	// 놓여진 곳의 Category 이름 저장
+
+	// if( seledCat != overCat ) {
+	
+	// 	if ( event.target.className == "dropzone" ) {
+	// 		event.target.style.background = "purple";
+	// 	}
+	// 	event.dataTransfer.dropEffect = "copy";
+	// }
+
 }, false);
 
+// 선택된 항목을 끌면서 아래에 놓였다가 빠져나간 후의 액션
 document.addEventListener("dragleave", function( event ) {
 	// reset background of potential drop target when the draggable element leaves it
-	if ( event.target.className == "dropzone" ) {
-		event.target.style.background = "";
-	}
+	// if ( event.target.className == "dropzone" ) {
+	// 	event.target.style.background = "";
+	// }
 	// console.log( event.target.parentNode );
+
+	//console.log( event.target.parentNode.parentNode.id + "/" +event.target.parentNode.id );
+	if( event.target.parentNode.parentNode.id == "addrBox") {
+		//event.target.parentNode.style.background = "purple";
+		//event.target.parentNode.style.fontWeight="normal";
+		event.target.parentNode.style.borderTop  = "initial";
+	} else if( event.target.parentNode.id == "catBoard") {
+		event.target.style.fontWeight="normal";
+		//event.target.style.background = "";
+	}
+	//event.dataTransfer.dropEffect = "copy";
+
 }, false);
+
+/**
+ * 
+ * 1
+ * 2
+ * 3
+ * 4
+ * 5
+ * 6
+ * 7
+ * 
+ */
 
 document.addEventListener("drop", function( event ) {
 	// prevent default action (open as link for some elements)
 	event.preventDefault();
 
-	var precat	= dragged.childNodes[1].innerHTML;
-	var postcat	= event.target.innerText;
-	var id		= parseInt( dragged.childNodes[1].innerHTML );
+	//var seledCat	= dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
+	var selAddr		= GVari.addrList[g_oldidx];	// 선택된 Address 저장
+	var seledCat	= selAddr.cat;				// 끌리고 있는 Address의 Category 이름 저장
 
-	// move dragged elem to the selected drop target
-	if ( event.target.className == "dropzone" ) {
-		event.target.style.background = "";
+	var id			= selAddr.id;
+	var oldpos		= selAddr.pos;
 
-		if( precat != postcat ) {			// 선택한 Address를 Drop한 위치의 Category가 다른 경우
-			var _promise = function () {	// 선택된 Address에 대한 정보를 가져온다.
-				return new Promise(function(resolve, reject) {
-					IndexedDB.selectId(id, function(data){
-						if( data.length == 0 ) {
-							reject(Error("It broke"));
-						} else {
-							resolve(data);
-						}
-					});
-				});
-			};
-			
-			_promise().then(function (data) {
-				//var nextPos = 0;
-				
-				// diffent Category --> Change Category & Position Number
-				var _promise2 = function () {	// 선택된 Category내의 최대 Pos 값에 +1 한 값을 리턴한다
-					return new Promise(function(resolve, reject) {
-						IndexedDB.getCatMaxValue( postcat ,function(data){
-							resolve(parseInt( data ));
-						});
-					});
-				};
-				_promise2().then(function (nextPos) {
-					data.cat = postcat;		// 바뀐 Category로 변경
-					data.pos = nextPos;		// Category내의 마지막 Pos 값으로 위치 지정
-					
-					dragged.parentNode.removeChild( dragged );	// 화면상에서 선택된 Address 삭제
-					IndexedDB.insert(data,function(data){		// 바뀐 정보로 Update
-						if( data == true ) {
-							Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
-							// console.log ( "( " + precat + " --> " + postcat + ") 이동 완료." );
-						} else {
-							console.log( "이동 중 오류가 발생하였습니다." );
-						}
-					});
-				});
-			}, function (error) {
-				// 실패시 
-				console.error(error);
-			});
-		}
-	// re-order in same category
-	} else if( event.target.parentNode.parentNode.id == "addrBox" ) {
-		var newpin	= event.target.parentNode;
-		var newid	= parseInt( newpin.childNodes[0].innerHTML );
-		var oldpos	= parseInt( dragged.childNodes[12].innerHTML );
-		var newpos	= parseInt( newpin.childNodes[12].innerHTML );
+	// 현재 보여지는 창에서의 위치 이동 ( 분류 이동이 아닌 같은 분류내의 순서 변경 )
+	if( event.target.parentNode.parentNode.id == "addrBox") {
+		var clickElement	= event.target || event.srcElement;
+		g_newidx			= clickElement.parentNode.rowIndex - 1;
+
+		var newAddr	= GVari.addrList[g_newidx];	// Drop된 위치에 있는 Address에 대한 정보
+		var newCat	= newAddr.cat;				// 놓여진 곳의 Category 이름 저장
+
+		var newpos	= newAddr.pos;
+
 		var start	= 0;
 		var end		= 0;
 		
-		if( oldpos > newpos ) {
+		// 범위를 지정하기 위한 시작과 끝값 설정
+		if( oldpos > newpos ) {	// 7을 잡아서 3의 자리로 올린 상황
 			start	= newpos;
 			end		= oldpos;
-		} else {
+		} else {				// 3을 잡아서 7의 자리로 내린 상황
 			start	= oldpos;
 			end		= newpos;
 		}
 
 		var _promise = function () {
 			return new Promise(function(resolve, reject) {
-				IndexedDB.getPosInRange(precat, start, end, function(data){
+				IndexedDB.getPosInRange(seledCat, start, end, function(data){
 					resolve( data );
 				});
 			});	
 		};
+
 		_promise().then(function (data) {
-			if( oldpos > newpos ) {
+			// 범위내에 있는 Address의 Positon 값에 1을 더한다.
+			if( oldpos > newpos ) {		// 7을 잡아서 3의 자리로 올린 상황
 				for( var i = 0 , lng = data.length ; i < lng ; i++ ){
-					data[i].pos	+= 1;
-					if( data[i].id == id ) {
+					data[i].pos	+= 1;	// 3 ~ 6 까지는 모두 1을 더해서 내린다.
+					if( data[i].id == id ) {	// 처음에 잡았던 7은 변경할 위치 3으로
 						data[i].pos	= newpos;
 					}
 				}
-			} else {
+			} else {	// 3을 잡아서 7의 자리로 내린 상황
 				for( var i = 0 , lng = data.length ; i < lng ; i++ ){
-					data[i].pos	-= 1;
-					if( data[i].id == id ) {
+					data[i].pos	-= 1;	// 4 ~ 7 까지는 모두 1을 빼서 올린다.
+					if( data[i].id == id ) {	// 처음에 잡았던 3은 변경할 위치 7로
 						data[i].pos	= newpos;
 					}
 				}
 			}
+
+			// 변경된 데이터를 저장 시킴
 			for( var i = 0 , lng = data.length ; i < lng ; i++ ){
 				IndexedDB.insert(data[i],function(rdata){
 					if(rdata == true){
@@ -851,38 +867,41 @@ document.addEventListener("drop", function( event ) {
 					}
 				});
 			}
-			
-			// Change Display Table
-			newidx	= event.target.parentNode.sectionRowIndex;
-			listlng	= newpin.parentNode.children.length;
-			var tables = event.target.parentNode.parentNode;
-
-			if( oldidx > newidx ) {		// Pull up
-				start	= newidx;
-				end		= oldidx;
-
-				var sel = tables.childNodes[end].innerHTML
-				var startpos = tables.childNodes[start].childNodes[12].innerHTML
-				for( var i = end ; i > start ; i-- ){
-					tables.childNodes[i].innerHTML = tables.childNodes[i-1].innerHTML
-					tables.childNodes[i].childNodes[12].innerHTML ++;
-				}
-				tables.childNodes[start].innerHTML = sel;
-				tables.childNodes[start].childNodes[12].innerHTML = startpos;
-			} else {	// Pull out
-				start	= oldidx;
-				end		= newidx;
-
-				var sel		= tables.childNodes[start].innerHTML
-				var endpos	= tables.childNodes[end].childNodes[12].innerHTML
-				for( var i = start ; i < end ; i++ ){
-					tables.childNodes[i].innerHTML = tables.childNodes[i+1].innerHTML
-					tables.childNodes[i].childNodes[12].innerHTML --;
-				}
-				tables.childNodes[end].innerHTML = sel;
-				tables.childNodes[end].childNodes[12].innerHTML = endpos;
-			}
+			// 위치 변경 후 목록 갱신
+			Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
 		});
+	} else if( event.target.parentNode.id == "catBoard") {
+		var newCat	= event.target.innerText;
+		// console.log( event.target.parentNode.id + " / " + seledCat );
+		event.target.style.background = "";
+
+		if( seledCat != newCat ) {			// 선택한 Address를 Drop한 위치의 Category가 다른 경우
+			var _promise2 = function () {	// 선택된 Category내의 최대 Pos 값에 +1 한 값을 리턴한다
+				return new Promise(function(resolve, reject) {
+					IndexedDB.getCatMaxValue( newCat ,function(data){
+						resolve(parseInt( data ));
+					});
+				});
+			};
+			_promise2().then(function (nextPos) {
+				var data	= selAddr;
+
+				data.cat = newCat;	// 바뀐 Category로 변경
+				data.pos = nextPos;	// Category내의 마지막 Pos 값으로 위치 지정
+				
+				IndexedDB.insert(data,function(data){		// 바뀐 정보로 Update
+					if( data == true ) {
+						// 위치 이동 후 목록 갱신
+						Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
+						// console.log ( "( " + seledCat + " --> " + newCat + ") 이동 완료." );
+					} else {
+						console.log( "이동 중 오류가 발생하였습니다." );
+					}
+				});
+			});
+		} else {
+			console.log( "동일 분류로 이동할 수 없습니다." );
+		}
 	}
 }, false);
 
