@@ -256,13 +256,14 @@ var IndexedDB = {
 			var db		= database.result;
 			var tx		= db.transaction(IndexedDB.schemaName, "readwrite");
 			var store	= tx.objectStore(IndexedDB.schemaName);
-			// console.log( val );
-			store.put(val);
-		
+
+			store.put(val).onsuccess = function(e) {
+				callback( e.target.result );	// return id
+			};
 			tx.oncomplete = function () {
 				//console.log( "트랜잭션이 종료") ;
 				db.close();
-				callback(true);
+				//callback(true);
 			};
 			tx.onabort  = function(){
 				console.log( "트랜잭션이 취소" );
@@ -428,6 +429,7 @@ var IndexedDB = {
 	 */
 	searchStr : function ( start, total, txt, callback ) {
 		var database = this.getConnection();
+		var exclCol = ['photo', 'id', 'favo', 'pos'];
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
@@ -442,6 +444,8 @@ var IndexedDB = {
 				tempdata = "";
 				if(cursor) {
 					for( var key in cursor.value ) {
+						// 특수 컬럼 검색에서 제외
+						if( exclCol.includes( key ) )	continue;
 						tempdata = cursor.value[key].toString();
 
 						if( tempdata.search( txt ) > -1 ) {
@@ -469,7 +473,8 @@ var IndexedDB = {
 
 	/** 검색어를 포함하는 Address 전체 개수 반환 ( 최소 2글자 이상 ) */
 	countSearch : function( txt, callback ) {
-		var database = this.getConnection();
+		var database= this.getConnection();
+		var exclCol	= ['photo', 'id', 'favo', 'pos'];
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(IndexedDB.schemaName, "readonly");
@@ -481,6 +486,8 @@ var IndexedDB = {
 				tempdata = "";
 				if(cursor) {
 					for( var key in cursor.value ) {
+						// 특수 컬럼 검색에서 제외
+						if( exclCol.includes( key ) )	continue;
 						tempdata = cursor.value[key].toString();
 						if( tempdata.search( txt ) > -1 ) {
 							datas++;

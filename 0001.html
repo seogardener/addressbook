@@ -48,7 +48,24 @@ table {
     border-spacing: 0;
     border-collapse: collapse;
 }
-
+input {
+	outline-style: none;
+}
+input:focus {
+	outline: none;
+}
+textarea {
+	outline-style: none;
+	cursor:default; 
+	outline-style:unset; 
+	border:0; 
+	overflow:auto; 
+	width: 98%; 
+	height:98%;
+}
+textarea:focus {
+	outline: none;
+}
 </style>
 </head>
 <body>
@@ -100,9 +117,8 @@ table {
 				</tr>
 			</thead>
 			<tbody>
-				<tr><th style="width:100px;">구분 &nbsp; </th><td id="detail_cat"></td><td style="width:250px; text-align: right;" id=detail_update></td></tr>
-				<tr><th>순번 &nbsp; </th><td id="detail_pos"></td><td rowspan="9" style="width:250px; text-align: center;"><img id="regphoto"></td></tr>
-				<tr><th>회사 &nbsp; </th><td id="detail_company"></td></tr>
+				<tr><th style="width:110px;">구분 &nbsp; </th><td id="detail_cat"></td><td style="width:250px; text-align: right;" id=detail_update></td></tr>
+				<tr><th>회사 &nbsp; </th><td id="detail_company"></td><td rowspan="8" style="width:250px; text-align: center;"><img id="regphoto"></td></tr>
 				<tr><th>부서 &nbsp; </th><td id="detail_depart"></td></tr>
 				<tr><th>팀 &nbsp; </th><td id="detail_team"></td></tr>
 				<tr><th>업무 &nbsp; </th><td id="detail_job"></td></tr>
@@ -111,8 +127,8 @@ table {
 				<tr><th>회사 전화 &nbsp; </th><td id="detail_phone"></td></tr>
 				<tr><th>휴대 전화 &nbsp; </th><td id="detail_cellphone"></td></tr>
 				<tr><th>eMail &nbsp; </th><td id="detail_email"></td><td id="detail_info"></td></tr>
-				<tr><th>조회수 &nbsp; </th><td id="detail_favo"></td><td id="detail_photo"></td></tr>
-				<tr><th>기타 정보 &nbsp; </th><td id="detail_etc" colspan=2></td></tr>
+				<tr><th>순번/조회 &nbsp; </th><td id="detail_favo"></td><td id="detail_photo"></td></tr>
+				<tr><th>기타 정보 &nbsp; </th><td colspan=2><textarea cols="20" rows="3" id="detail_etc" placeholder="최대 20자" style="width: 480px; height: 100px; resize: none;"></textarea></td></tr>
 			</tbody>
 			<tfoot>
 				<tr><th colspan="3" id="cbutton"></th></tr>

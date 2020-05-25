@@ -47,7 +47,7 @@ var Show = {
 			i_phone.value	= "02-0000-" + val;
 			i_cell.value	= "010-0000-" + val;
 			i_email.value	= val + "@gmail.com";
-			i_etc.value		= val;
+			detail_etc.value= val;
 			i_favo.value	= 0;
 			//i_pos.value	= i;
 			//i_id.value	= "";
@@ -60,11 +60,11 @@ var Show = {
 	details : function( event ) {
 		var data, clickElement, idx;
 
-		console.log( event );
+		//console.log( event );
 		if( event == undefined ) {	// 직접 호출인 경우
 			data	= GVari.addr;
 		} else {					// list를 통한 선택 호출이 경우
-			clickElement	= event.target || event.srcElement,
+			clickElement	= event.target || event.srcElement;
 			idx				= clickElement.parentNode.rowIndex - 1;
 			data			= GVari.addrList[idx];
 			GVari.addr		= data;		// 변경전 Addr 저장, Global Variable
@@ -86,26 +86,28 @@ var Show = {
 		detail_phone.innerHTML		= " &nbsp; " + data.phone;
 		detail_cellphone.innerHTML	= " &nbsp; " + data.cell;
 		detail_email.innerHTML		= " &nbsp; " + data.email;
-		detail_etc.innerHTML		= " &nbsp; " + data.etc;
-		detail_pos.innerHTML		= " &nbsp; " + data.pos;
-		detail_favo.innerHTML		= " &nbsp; " + data.favo;
+		/**
+		 * var array = textbox.value.split(/\r\n|\r|\n/)  <-- 쪼개서 저장
+		 * textbox.value = array.join("\r\n");	<-- CRLF를 붙여서 출력
+		 */
+		detail_etc.innerHTML		= data.etc.split(/\r\n|\r|\n/).join("\r\n");
+		detail_etc.readOnly			= true;
+		detail_favo.innerHTML		= " &nbsp; " + data.pos + " / " + data.favo;
 		regphoto.src				= Show.photoImg( data.photo );
 		detail_photo.innerHTML		= "";
 		detail_info.innerHTML		= "";
 
 		cbutton.innerHTML	= "<b onclick='Show.offDetail();'>닫기</b>";
 		document.getElementById("address_detail_view").style.display	= 'block';
-		console.log( data );
-
 	},
 
 	photoImg : function( photo ) {
 
 		if( photo == undefined ) {
-			console.log( "기본 사진 출력" );
+			//console.log( "기본 사진 출력" );
 			return GVari.defaultimg;
 		} else {
-			console.log( "등록된 사진 출력" );
+			//console.log( "등록된 사진 출력" );
 			return photo;
 		}
 	},
@@ -132,8 +134,11 @@ var Show = {
 		detail_phone.innerHTML		= '  &nbsp; <input type=text id=i_phone placeholder="000-0000-0000">';
 		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell placeholder="000-0000-0000">';
 		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email placeholder="abc@abc.com">';
-		detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc placeholder="최대 20자">';
-		detail_pos.innerHTML		= '  &nbsp; 자동 부여 됨';
+		detail_etc.innerHTML		= "";
+		detail_etc.readOnly			= false;
+
+		// detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc placeholder="최대 20자">';
+		// detail_pos.innerHTML		= '  &nbsp; 자동 부여 됨';
 		detail_favo.innerHTML		= '  &nbsp; <input type=text id=i_favo placeholder="숫자 입력">';
 		regphoto.src				= GVari.defaultimg;
 		detail_photo.innerHTML		= '  &nbsp; <input type=file id=i_photo onchange="Show.photoFile(this.files);" class=hidden> 최적 크기 : 200x200';
@@ -161,7 +166,9 @@ var Show = {
 		detail_phone.innerHTML		= '  &nbsp; <input type=text id=i_phone value="' + data.phone + '">';
 		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell value="' + data.cell + '">';
 		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email value="' + data.email + '">';
-		detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc value="' + data.etc + '" size=55>';
+		// detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc value="' + data.etc + '" size=55>';
+		detail_etc.innerHTML		= data.etc;
+		detail_etc.readOnly			= false;
 		detail_favo.innerHTML		= '  &nbsp; <input type=text id=i_favo value="' + data.favo + '">';
 		detail_info.innerHTML		= ' &nbsp;  최적 크기 : 200x200';
 		detail_photo.innerHTML		= '  &nbsp; <input type=file id=i_photo onchange="Show.photoFile(this.files);" class=hidden>';
@@ -413,7 +420,6 @@ var Show = {
 					+ data[i].cell + "</td></tr>";
 			}
 			Common.tblRollOver(document.getElementById("addrBox"));
-
 		});
 
 		document.getElementById("list_div").style.display	= 'block';
@@ -460,7 +466,7 @@ var Doing = {
 		else							addr.favo	= addr.favo + 1;
 
 		IndexedDB.insert(addr,function(data){
-			if( data == true ) {
+			if( data != false ) {
 				//console.log ( addr.name + " : 이동 완료." );
 				//Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
 			} else {
@@ -483,7 +489,7 @@ var Doing = {
 			phone:i_phone.value, 
 			cell:i_cell.value, 
 			email:i_email.value, 
-			etc:i_etc.value,
+			etc:detail_etc.value,
 			favo:parseInt( i_favo.value ),
 			update:now(),
 			photo:GVari.addr.photo
@@ -552,8 +558,9 @@ var Doing = {
 			addr.cat	= cat;
 			addr.pos	= parseInt( data );
 			IndexedDB.insert(addr,function(data){
-				if( data == true ) {
+				if( data != false ) {
 					//console.log ( addr.name + " : 이동 완료." );
+					GVari.addr.id	= data;
 					Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
 				} else {
 					console.log( "이동 중 오류가 발생하였습니다." );
@@ -565,8 +572,8 @@ var Doing = {
 	/** 수정 내용 저장 */
 	update : function() {
 
-		var data= GVari.addr;
-		var selID = parseInt( data.id );
+		var data	= GVari.addr;
+		var selID	= parseInt( data.id );
 		if ( selID == 0 ) {
 			alert( "수정할 수 없습니다. ( 아래 이유 참고 ) \r\n 1.기존에 등록된 주소가 아닙니다. 등록 버튼을 누르세요." );
 			return false;
@@ -583,7 +590,7 @@ var Doing = {
 			phone:i_phone.value, 
 			cell:i_cell.value, 
 			email:i_email.value, 
-			etc:i_etc.value,
+			etc:detail_etc.value,
 			favo:parseInt( i_favo.value ),
 			pos:parseInt( data.pos ),	// pos 변경 불가
 			update:now(),
@@ -595,7 +602,7 @@ var Doing = {
 			// console.log( addr );
 			IndexedDB.insert(addr,function(data){
 				//dashboard.innerHTML	= "";
-				if(data == true){
+				if(data != false){
 					// console.log( "수정 완료" );
 				} else {
 					alert( "수정되지 않았습니다. \n전체적으로 확인 후 다시 시도하세요." );
@@ -605,7 +612,7 @@ var Doing = {
 			Doing.movingAddr( i_cat.value, addr );
 			alert( "변경된 내용은 " + data.cat + "에서 " + i_cat.value + "로 이동되어 저장이 되었습니다." );
 		}
-		Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
+		Show.pagedList(GVari.sel_curPage, i_cat.value );
 		GVari.addr	= addr;
 		Show.details();
 	},
@@ -639,7 +646,7 @@ var Doing = {
 				var lng = content.length;
 				for( var i = 0 ; i < lng ; i++ ) {
 					IndexedDB.insert(content[i],function(data){
-						if(data == true){
+						if(data != false){
 							console.log( "Data 추가 중 ... [" + i + "/" + lng + "]" );
 						}
 					});
@@ -679,7 +686,7 @@ function clearForm() {
 	i_phone.value	= "";
 	i_cell.value	= "";
 	i_email.value	= "";
-	i_etc.value		= "";
+	detail_etc.value		= "";
 	i_pos.value		= 0;
 	i_favo.value	= 0;
 };
@@ -707,24 +714,18 @@ document.addEventListener("drag", function( event ) {
 document.addEventListener("dragstart", function( event ) {
 	// store a ref. on the dragged elem
 	var clickElement	= event.target || event.srcElement;
-	//dragged = event.target;
-	//g_oldidx	= event.target.sectionRowIndex;
 
-	// make it half transparent
 	clickElement.style.opacity = 5;
 	clickElement.style.border = "1px solid #cccccc";
 	
 	var img = new Image();
 	img.src = "img/xofficecontact_103670.png";
 	event.dataTransfer.setDragImage(img, 25, 25);
-	
-	//event.dataTransfer.setData("text/plain", clickElement.cells[0].innerText );
 }, false);
 
 document.addEventListener("dragend", function( event ) {
 	// reset the transparency
 	event.target.style.opacity = "";
-	//console.log( "???" );
 }, false);
 
 /* events fired on the drop targets */
@@ -736,56 +737,20 @@ document.addEventListener("dragover", function( event ) {
 // highlight potential drop target when the draggable element enters it
 // 선택된 항목을 끌면서 아래에 놓이게 되는 항목에 대한 액션
 document.addEventListener("dragenter", function( event ) {
-	// var seledCat = dragged.parentNode.childNodes[1].childNodes[1].innerHTML;
-	// var selAddr	= GVari.addrList[g_oldidx];
-	// var seledCat = selAddr.cat;		// 끌리고 있는 Address의 Category 이름 저장
-	// console.log( event.target.parentNode );
-
-	//console.log( event.target.parentNode.parentNode.id + "/" +event.target.parentNode.id );
 	if( event.target.parentNode.parentNode.id == "addrBox") {
-		//event.target.parentNode.style.background = "purple";
-		//event.target.parentNode.style.fontWeight="bold";
 		event.target.parentNode.style.borderTop  = "2px solid #cccccc";
 	} else if( event.target.parentNode.id == "catBoard") {
 		event.target.style.fontWeight="bold";
-		//event.target.style.background = "purple";
 	}
-	//event.dataTransfer.dropEffect = "copy";
-
-	// var clickElement	= event.target || event.srcElement,
-	// 	idx				= clickElement.parentNode.rowIndex - 1;
-	// var overAddr		= GVari.addrList[idx];
-	// var overCat			= overAddr.cat;	// 놓여진 곳의 Category 이름 저장
-
-	// if( seledCat != overCat ) {
-	
-	// 	if ( event.target.className == "dropzone" ) {
-	// 		event.target.style.background = "purple";
-	// 	}
-	// 	event.dataTransfer.dropEffect = "copy";
-	// }
-
 }, false);
 
 // 선택된 항목을 끌면서 아래에 놓였다가 빠져나간 후의 액션
 document.addEventListener("dragleave", function( event ) {
-	// reset background of potential drop target when the draggable element leaves it
-	// if ( event.target.className == "dropzone" ) {
-	// 	event.target.style.background = "";
-	// }
-	// console.log( event.target.parentNode );
-
-	//console.log( event.target.parentNode.parentNode.id + "/" +event.target.parentNode.id );
 	if( event.target.parentNode.parentNode.id == "addrBox") {
-		//event.target.parentNode.style.background = "purple";
-		//event.target.parentNode.style.fontWeight="normal";
 		event.target.parentNode.style.borderTop  = "initial";
 	} else if( event.target.parentNode.id == "catBoard") {
 		event.target.style.fontWeight="normal";
-		//event.target.style.background = "";
 	}
-	//event.dataTransfer.dropEffect = "copy";
-
 }, false);
 
 /**
@@ -862,7 +827,7 @@ document.addEventListener("drop", function( event ) {
 			// 변경된 데이터를 저장 시킴
 			for( var i = 0 , lng = data.length ; i < lng ; i++ ){
 				IndexedDB.insert(data[i],function(rdata){
-					if(rdata == true){
+					if(rdata != false){
 						console.log( "Data 추가 중 ... [" + i + "/" + lng + "]" );
 					}
 				});
@@ -890,7 +855,7 @@ document.addEventListener("drop", function( event ) {
 				data.pos = nextPos;	// Category내의 마지막 Pos 값으로 위치 지정
 				
 				IndexedDB.insert(data,function(data){		// 바뀐 정보로 Update
-					if( data == true ) {
+					if( data != false ) {
 						// 위치 이동 후 목록 갱신
 						Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
 						// console.log ( "( " + seledCat + " --> " + newCat + ") 이동 완료." );
