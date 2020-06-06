@@ -66,6 +66,12 @@ textarea {
 textarea:focus {
 	outline: none;
 }
+img {
+	max-width: 100%;
+	display: block;
+	margin: 0px auto;
+}
+
 </style>
 </head>
 <body>
@@ -118,7 +124,7 @@ textarea:focus {
 			</thead>
 			<tbody>
 				<tr><th style="width:110px;">구분 &nbsp; </th><td id="detail_cat"></td><td style="width:250px; text-align: right;" id=detail_update></td></tr>
-				<tr><th>회사 &nbsp; </th><td id="detail_company"></td><td rowspan="8" style="width:250px; text-align: center;"><img id="regphoto"></td></tr>
+				<tr><th>회사 &nbsp; </th><td id="detail_company"></td><td rowspan="8" style="width:250px; text-align: center;"><img id="idphoto"></td></tr>
 				<tr><th>부서 &nbsp; </th><td id="detail_depart"></td></tr>
 				<tr><th>팀 &nbsp; </th><td id="detail_team"></td></tr>
 				<tr><th>업무 &nbsp; </th><td id="detail_job"></td></tr>
@@ -143,5 +149,5 @@ textarea:focus {
 <script src="js/indexedDB.js"></script>
 <script src="js/common.js"></script>
 <script src="js/0001.js"></script>
-<link rel=StyleSheet href="./css/address_book.css" type="text/css" />
+<link rel=StyleSheet href="css/address_book.css" type="text/css" />
 </html>
