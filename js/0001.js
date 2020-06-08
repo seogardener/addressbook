@@ -133,15 +133,15 @@ var Show = {
 		td_title2.innerHTML		= "<b onclick='Show.b_genData();'>자동 생성</b>";
 
 		detail_update.innerHTML		= "  &nbsp; " + now() + " &nbsp; ";
-		detail_cat.innerHTML		= '  &nbsp; <input type=text id=i_cat list="catlists" placeholder="선택 또는 등록(20자)">' + GVari.catlists;
+		detail_cat.innerHTML		= '  &nbsp; <input type=text id=i_cat list="catlists" placeholder="선택 또는 등록(20자)" required>' + GVari.catlists;
 		detail_company.innerHTML	= '  &nbsp; <input type=text id=i_company list="comlists" placeholder="선택 또는 등록(20자)">' + GVari.comlists;
 		detail_depart.innerHTML		= '  &nbsp; <input type=text id=i_depart list="deplists" placeholder="선택 또는 등록(20자)">' + GVari.deplists;
 		detail_team.innerHTML		= '  &nbsp; <input type=text id=i_team list="tealists" placeholder="선택 또는 등록(20자)">' + GVari.tealists;
 		detail_posit.innerHTML		= '  &nbsp; <input type=text id=i_posit list="poslists" placeholder="선택 또는 등록(20자)">' + GVari.poslists;
-		detail_name.innerHTML		= '  &nbsp; <input type=text id=i_name placeholder="최대 20자">';
+		detail_name.innerHTML		= '  &nbsp; <input type=text id=i_name placeholder="최대 20자" required>';
 		detail_job.innerHTML		= '  &nbsp; <input type=text id=i_job placeholder="최대 20자">';
 		detail_phone.innerHTML		= '  &nbsp; <input type=text id=i_phone placeholder="000-0000-0000">';
-		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell placeholder="000-0000-0000">';
+		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell placeholder="000-0000-0000" required>';
 		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email placeholder="abc@abc.com">';
 		detail_etc.value			= "";
 		detail_etc.readOnly			= false;
@@ -207,7 +207,7 @@ var Show = {
 		}
 		IndexedDB.GroupByMenu( function(data){
 			if( data.size == 0 ) {
-				catBoard.innerHTML	= "<td>등록된 내용이 없습니다. 등록 후 사용하십시오.</td>";
+				catBoard.innerHTML	= "<td><br><br>안녕하세요. AddressBook 처음 실행을 환경 합니다.~!!!<br><br> 현재 등록된 내용이 없습니다. <br><br>아래 등록 링크을 눌러 주소록 등록을 하여 주십시오.<br><br><a onclick='Show.insert();'>[ 등록 ]</a><br></td>";
 			} else {
 				catBoard.innerHTML	= "";
 				for( var [key, value] of data ) {
@@ -218,6 +218,9 @@ var Show = {
 						catBoard.innerHTML	+= "<td class='dropzone' onclick=Show.pagedList(1,\"" + key + "\");>" + key + "</td>";
 					}
 				}
+				document.getElementById("list_div").style.display	= 'block';
+				document.getElementById("bottom_div").style.display	= 'block';
+				
 			}
 		});
 	},
@@ -386,6 +389,11 @@ var Show = {
 		});
 	},
 
+	/** 휴지통 보기 */
+	trashcan : function() {
+		Show.pagedList( 1, "휴지통" );
+	},
+
 	/**
 	 * 전체 Address 목록 표시
 	 * curPage : 시작 페이지
@@ -427,8 +435,6 @@ var Show = {
 				if( totalPage >= next )		page_link += " &nbsp; <a onclick='Show.pagedList(" + next + ",\"" + cat + "\");'>[>]</a> &nbsp; <a onclick='Show.pagedList(" + totalPage + ",\"" + cat + "\");'>[>>]</a>";
 				paging.innerHTML = page_link;
 			} else {
-				//totalcnt.style.backgroundColor	= "#FFFFFF";
-				//paging.style.backgroundColor	= "#FFFFFF";
 				totalcnt.innerHTML	= "[ 1 / 1 ]";
 				paging.innerHTML	= "[1]";
 			}
@@ -438,20 +444,20 @@ var Show = {
 		addrBox.innerHTML	= "";
 		IndexedDB.getData( start, GVari.cperpage, cat ).then( function( data ) {
 			var lng	= data.length;
-			if( lng == 0 ) Show.pagedList( curPage - 1, cat );
-			GVari.addrList = data;
-			for( var i = 0 ; i < lng ; i++ ){
-				addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
-					+ data[i].team + "</td><td>" 
-					+ data[i].posit + "</td><td>" 
-					+ data[i].name + "</td><td>" 
-					+ data[i].job + "</td><td>" 
-					+ data[i].cell + "</td></tr>";
+			if( curPage != 1 && lng == 0 ) Show.pagedList( curPage - 1, cat );
+			if( lng != 0 ) {
+				GVari.addrList = data;
+				for( var i = 0 ; i < lng ; i++ ){
+					addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
+						+ data[i].team + "</td><td>" 
+						+ data[i].posit + "</td><td>" 
+						+ data[i].name + "</td><td>" 
+						+ data[i].job + "</td><td>" 
+						+ data[i].cell + "</td></tr>";
+				}
+				Common.tblRollOver(document.getElementById("addrBox"));
 			}
-			Common.tblRollOver(document.getElementById("addrBox"));
 		});
-
-		document.getElementById("list_div").style.display	= 'block';
 	},
 
 	/**
@@ -572,6 +578,23 @@ var Show = {
 				GVari.poslists += "</datalist>";
 			}
 		});
+	},
+
+	whetherCorrect : function( data ) {
+		var errMsg	= "";
+
+		if( data.cat == "" )	errMsg	+= "구분 ex) 가족, 협력업체, 동료,..\n";
+		if( data.name == "" )	errMsg	+= "이름 : 최소 2글자 이상\n";
+		if( data.phone == "" && data.cell == "" ) {
+			if( data.phone == "" )	errMsg	+= "사무실 전화번호 ex) 02-0000-0000,..\n";
+			if( data.cell == "" )	errMsg	+= "휴대 전화번 ex) 010-0000-0000, 01012341234\n";
+		}
+		if( errMsg == "" ) {
+			return true;
+		} else {
+			alert( "필수 입력 내용이 빠졌습니다.\n\n" + errMsg + "\n위의 내용을 입력해 주세요.");
+			return false;
+		}
 	}
 };
 
@@ -614,12 +637,14 @@ var Doing = {
 			//id:
 		}
 
-		/** 해당 분류에 마지막 pos 값을 구한 후 등록 진행 */
-		GVari.addr	= addr;
-		GVari.sel_curPage	= 1;
-		GVari.sel_Category	= addr.cat;
-		Doing.movingAddr( i_cat.value, addr );
-		Show.details();
+		if( Show.whetherCorrect( addr ) ) {
+			/** 해당 분류에 마지막 pos 값을 구한 후 등록 진행 */
+			GVari.addr			= addr;
+			GVari.sel_curPage	= 1;
+			GVari.sel_Category	= addr.cat;
+			Doing.movingAddr( i_cat.value, addr );
+			Show.details();
+		}
 	},
 
 	/** "삭제" 버튼 */
@@ -711,22 +736,24 @@ var Doing = {
 			photo:GVari.addr.photo
 		}
 
-		/** 분류(Category)가 수정이 되었는지 확인 */
-		if( data.cat == i_cat.value ) {	// 분류(Category)가 변경되지 않은 경우, pos를 제외하고 변경
-			IndexedDB.insert(addr,function(data){
-				if(data != false){
-					// console.log( "수정 완료" );
-				} else {
-					alert( "수정되지 않았습니다. \n전체적으로 확인 후 다시 시도하세요." );
-				}
-			});
-		} else {	// 분류(Category)가 변경된 경우 분류(Category)의 마지막 addr로 pos를 이동
-			Doing.movingAddr( i_cat.value, addr );
-			alert( "변경된 내용은 " + data.cat + "에서 " + i_cat.value + "로 이동되어 저장이 되었습니다." );
+		if( Show.whetherCorrect( addr ) ) {
+			/** 분류(Category)가 수정이 되었는지 확인 */
+			if( data.cat == i_cat.value ) {	// 분류(Category)가 변경되지 않은 경우, pos를 제외하고 변경
+				IndexedDB.insert(addr,function(data){
+					if(data != false){
+						// console.log( "수정 완료" );
+					} else {
+						alert( "수정되지 않았습니다. \n전체적으로 확인 후 다시 시도하세요." );
+					}
+				});
+			} else {	// 분류(Category)가 변경된 경우 분류(Category)의 마지막 addr로 pos를 이동
+				Doing.movingAddr( i_cat.value, addr );
+				alert( "변경된 내용은 " + data.cat + "에서 " + i_cat.value + "로 이동되어 저장이 되었습니다." );
+			}
+			Show.pagedList(GVari.sel_curPage, i_cat.value );
+			GVari.addr	= addr;
+			Show.details();
 		}
-		Show.pagedList(GVari.sel_curPage, i_cat.value );
-		GVari.addr	= addr;
-		Show.details();
 	},
 
 	/** 전체 데이터 삭제 */
@@ -790,7 +817,7 @@ function isText(type){
 var g_oldidx;
 
 // images-preloader
-(new Image()).src = "img/xofficecontact_103670.png";
+(new Image()).src = "img/dragImage.png";
 
 /* events fired on the draggable target */
 document.addEventListener("drag", function( event ) { 
