@@ -205,11 +205,8 @@ var IndexedDB = {
 	getCatMaxValue: function (catName, callback) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			//var store = tx.objectStore(IndexedDB.schemaName);
-			//var index = store.index("poscatIdx");
-			//var cursor = index.openCursor(range, 'prev');
+			var db		= database.result;
+			var tx		= db.transaction(IndexedDB.schemaName, "readonly");
 			var obj		= null;
 			var last 	= null;
 			var data	= null;
@@ -282,24 +279,26 @@ var IndexedDB = {
 
 	/** 상단 각 분류 표시를 위한 분류에 대한 유일한 값 찾기 */
 	GroupByMenu : function( callback ) {
-		var database = this.getConnection();
-		var dupes = new Map();
+		var database	= this.getConnection();
+		var dupes		= new Map();
 		
 		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(IndexedDB.schemaName, "readonly");
-			var cursor = tx.objectStore(IndexedDB.schemaName).index("catIdx").openCursor(null, 'prev');
-			var last = null;
+			var db		= database.result;
+			var tx		= db.transaction(IndexedDB.schemaName, "readonly");
+			var cursor	= tx.objectStore(IndexedDB.schemaName).index("catIdx").openCursor(null, 'prev');
+			var last	= null;
 			cursor.onsuccess = function (event) {
 				var req = cursor.result;
 				if (!req) return; // Done!
-				var name = req.key, id = req.primaryKey;
-				if (name === last) {
-					// It's a duplicate!
-					if (!dupes.has(name)) dupes.set(name, []);
+				var name= req.key,
+					id	= req.primaryKey;
+				if (name == last) {
 					dupes.get(name).push(id);
 				} else {
+					// It's a duplicate!
+					if (!dupes.has(name)) dupes.set(name, []);
 					last = name;
+					dupes.get(name).push(id);
 				}
 				req.continue();
 			};
@@ -396,25 +395,29 @@ var IndexedDB = {
 	countCat : function( cat, callback ) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
-			// cat에 값이 없는 경우 전체 개수 반환
-			// if( cat == "" )	keyRange	= "";
-			// else			keyRange	= IDBKeyRange.bound( [cat, 0], [cat, 999999999] );
-			
 			var db		= database.result;
 			var tx		= db.transaction(IndexedDB.schemaName,'readonly');
+			var data	= 0;
+			var keyRange, cursor;
 			if( cat == "ALL" ) {
 				var cursor	= tx.objectStore(IndexedDB.schemaName).index("keyIndex").count();
 			} else {
-				var keyRange	= IDBKeyRange.bound( [cat, 0], [cat, 999999999] );
-				var cursor	= tx.objectStore(IndexedDB.schemaName).index("poscatIdx").count(keyRange);
+				keyRange	= IDBKeyRange.bound( [cat, 0], [cat, 99999999] );
+				cursor		= tx.objectStore(IndexedDB.schemaName).index("poscatIdx").count(keyRange);
 			}
 			cursor.onsuccess = function(event) {
-				callback(cursor.result);
+				data	= cursor.result;
 			};
 			tx.oncomplete = function () {
 				// console.log( "연결 종료") ;
 				db.close();
+				callback(data);
 			};
+			tx.onerror = function () {
+				console.log( "countCat 실패") ;
+				db.close();
+				callback(0);
+			}
 		}
 		database.onerror = function (event) {
 			callback(event);

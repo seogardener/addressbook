@@ -76,8 +76,8 @@ img {
 </head>
 <body>
 <div style="width:1px; height:1px; visibility:hidden; overflow:hidden">
-    <img src="img/xofficecontact_103670.png" class ="dragContact" />
-    <img src="img/vcsremoved_93492.png" class ="dragStop" />
+    <img src="img/dragImage.png" class ="dragContact" />
+    <img src="img/dragStop.png" class ="dragStop" />
 </div>
 	<div style="width:95%; margin:0px auto; display:block;">
 		<div style="padding:3px;"></div>
@@ -89,17 +89,17 @@ img {
 		<table class="list01" style="width:100%;">
 			<thead><tr><th width=15%>회사</th><th width=15%>팀</th><th width=15%>직급</th><th width=15%>이름</th><th width=20%>업무</th><th width=20%>휴대 전화</th></tr>
 			<tbody id=addrBox></tbody>
-			<tfoot style='background-color:#54D1F1;'><tr><td colspan='4' id='paging'></td><td id='totalcnt'></td><td><a onclick='Show.insert();'>[+]</a></td></tr></tfoot>
+			<tfoot style='background-color:#54D1F1;'><tr><td colspan='4' id='paging'></td><td id='totalcnt'></td><td><a onclick='Show.insert();'>[등록]</a></td></tr></tfoot>
 		</table>
 	</div>
 
-	<div style="width:95%; margin:0px auto;">
+	<div id=bottom_div style="width:95%; margin:0px auto; display:none;">
 		<div style="padding:3px;"></div>
 		<table class="list01" style="width:100%; height:30px; background-color:#BBD9EE;">
 			<tfoot><tr><td>
 				<a onclick='Show.b_test();'>Test</a> / 
-				<a onclick='Show.pagedList4Favo();'>Top15</a> / 
-				<a onclick='Show.pagedList( 1, "휴지통" );'>휴지통</a> / 
+				<a onclick='Show.pagedList4Favo();'>Top20</a> / 
+				<a onclick='Show.trashcan();'>휴지통</a> / 
 				<a onclick='Show.b_list();'>전체</a> / 
 				<a onclick='Show.backup();'>전체 백업</a> / 
 				<a onclick='Doing.db_delete();'>전체 삭제</a> / 
