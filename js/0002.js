@@ -6,11 +6,11 @@ window.onload = function() {
 	Show.catDisplay();
 	Show.pagedList4Favo();
 	Show.genDatalists();
-	
+
 }
 
-IndexedDB.checkDB();
-IndexedDB.createSchema('id');
+FavoritesDB.checkDB();
+FavoritesDB.createSchema('id');
 
 /** 변경전 Addr의 내용이 저장 */
 var GVari = {
@@ -20,18 +20,7 @@ var GVari = {
 	sel_Category: "",	// 선택된 Category
 	sel_curPage : 1,	// 선택된 현재 page
 	catlists	: "",
-	comlists	: "",
-	deplists	: "",
-	tealists	: "",
-	poslists	: "",
-	defIdPhoto	: "012.png",
-	idPhotoPath	: "img/idPhoto/",
-	idPhotos	: {
-		  1 : "001.png",  2 : "002.png",  3 : "003.png",  4 : "004.png",  5 : "005.png",
-		  6 : "006.png",  7 : "007.png",  8 : "008.png",  9 : "009.png", 10 : "010.png",
-		 11 : "011.png", 12 : "012.png", 13 : "013.png", 14 : "014.png", 15 : "015.png",
-		 16 : "016.png", 17 : "017.png", 18 : "018.png"
-		}
+	poslists	: ""
 };
 
 var Show = {
@@ -41,31 +30,23 @@ var Show = {
 		Show.pagedList( 1, "ALL" );
 	},
 
-	/** Dummy 연락처 생성 */
+	/** Dummy 연락처 생성 20200805 **/
 	b_genData : function() {
+
+		var catArr =["광고","디자인","홈페이지","패션","컨셉","칼라","팬시","에이전시","스타일","클럽"]
+		var catArr2 =["advert","design","homepage","fasion","concept","color","fancy","agency","style","club"]
+		var catVal = Math.floor( Math.random() * 10 );
 		var val = Math.floor(1000 + Math.random() * 9000);
 
-		for( var i = 0 ; i < 10 ; i++ ) {
-			i_cat.value = "직장동료";			//  협력사, 가족사, 퇴사자, 전직동료, 친구, 가족
-			i_company.value	= "YOUTUBE";	// 구글, 오라클, IBM, EMC, 애플, 삼성, SONY, PHILIPS, YOUTUBE
-			i_depart.value	= "기술본부";	// 경영지원본부 , 기술본부, 사업1본부, 사업3본부, 교육평가연구소,
-			i_team.value	= "개발1팀";	// 경영지원팀, 재무팀, 평가팀, 유학사업팀, 콘텐츠사업팀, 신규사업팀, 서비스운영팀, 서비스전략팀, 서비스영업팀, 마케팅사업팀, 디자인팀, 법무팀
-			i_posit.value	= "매니저" + val;
-			i_name.value	= "홍" + val;
-			i_job.value		= "시스템" + val;
-			i_phone.value	= "02-0000-" + val;
-			i_cell.value	= "010-0000-" + val;
-			i_email.value	= val + "@gmail.com";
-			detail_etc.value= val;
-			i_favo.value	= 0;
-			//i_pos.value	= i;
-			//i_id.value	= "";
-			
-			val = Math.floor(1000 + Math.random() * 9000);
-		}
+		i_cat.value		= catArr[catVal];			//  협력사, 가족사, 퇴사자, 전직동료, 친구, 가족
+		i_name.value	= catArr[catVal] + val;
+		i_url.value		= "www." + catArr2[catVal] + val + ".com";	// www.naver.com
+		i_hint.value	= catArr2[catVal] + "/admin" + val;	// 인증 관련 Hint
+		detail_etc.value= catArr[catVal] + " / " + catArr2[catVal] + " / " + val;
+		i_favo.value	= catVal;
 	},
 
-	/** 목록에서 선택한 Address에 대한 상세 정보를 보여줌. */
+	/** 목록에서 선택한 Address에 대한 상세 정보를 보여줌. 20200805  */
 	details : function( event ) {
 		var data = [], clickElement, idx;
 
@@ -78,22 +59,16 @@ var Show = {
 			GVari.addr		= data;		// 변경전 Addr 저장, Global Variable
 		}
 
-		cltitle.innerHTML		= data.company + " &nbsp; " + data.job + " &nbsp; " + data.name + " &nbsp; " + data.posit;
+		cltitle.innerHTML		= data.cat + " &nbsp; " + data.name;
 		td_title2.innerHTML		= "<b onclick='Doing.remove();'>삭제</b> | <b onclick='Show.update();'>수정</b>";
 
 		if( data.favo == undefined )	data.favo	= 1;
 
-		detail_update.innerHTML		= " &nbsp; " + now() + " &nbsp; ";
+		detail_update.innerHTML		= " &nbsp; " + data.update + " &nbsp; ";
 		detail_cat.innerHTML		= " &nbsp; " + data.cat;
-		detail_company.innerHTML	= " &nbsp; " + data.company;
-		detail_depart.innerHTML		= " &nbsp; " + data.depart;
-		detail_team.innerHTML		= " &nbsp; " + data.team;
-		detail_posit.innerHTML		= " &nbsp; " + data.posit;
 		detail_name.innerHTML		= " &nbsp; " + data.name;
-		detail_job.innerHTML		= " &nbsp; " + data.job;
-		detail_phone.innerHTML		= " &nbsp; " + data.phone;
-		detail_cellphone.innerHTML	= " &nbsp; " + data.cell;
-		detail_email.innerHTML		= " &nbsp; " + data.email;
+		detail_url.innerHTML		= " &nbsp; " + data.url;
+		detail_hint.innerHTML		= " &nbsp; " + data.hint;
 		/**
 		 * var array = textbox.value.split(/\r\n|\r|\n/)  <-- 쪼개서 저장
 		 * textbox.value = array.join("\r\n");	<-- CRLF를 붙여서 출력
@@ -101,9 +76,6 @@ var Show = {
 		detail_etc.value			= data.etc.split(/\r\n|\r|\n/).join("\r\n");
 		detail_etc.readOnly			= true;
 		detail_favo.innerHTML		= " &nbsp; " + data.pos + " / " + data.favo;
-		idphoto.src					= Show.photoImg( data.photo );
-		detail_photo.innerHTML		= "";
-		detail_info.innerHTML		= "";
 
 		cbutton.innerHTML	= "<b onclick='Show.offDetail();'>닫기</b>";
 		document.getElementById("address_detail_view").style.display	= 'block';
@@ -127,34 +99,26 @@ var Show = {
 		document.getElementById("address_detail_view").style.display	= 'none';
 	},
 
+	/** 즐겨찾기 등록 20200805 */
 	insert : function( event ) {
-		cltitle.innerHTML		= " 주소록 등록 ";
+		cltitle.innerHTML		= " 즐겨찾기 URL 등록 ";
 		td_title2.innerHTML		= "<b onclick='Show.b_genData();'>자동 생성</b>";
 
 		detail_update.innerHTML		= "  &nbsp; " + now() + " &nbsp; ";
 		detail_cat.innerHTML		= '  &nbsp; <input type=text id=i_cat list="catlists" placeholder="선택 또는 등록(20자)" required>' + GVari.catlists;
-		detail_company.innerHTML	= '  &nbsp; <input type=text id=i_company list="comlists" placeholder="선택 또는 등록(20자)">' + GVari.comlists;
-		detail_depart.innerHTML		= '  &nbsp; <input type=text id=i_depart list="deplists" placeholder="선택 또는 등록(20자)">' + GVari.deplists;
-		detail_team.innerHTML		= '  &nbsp; <input type=text id=i_team list="tealists" placeholder="선택 또는 등록(20자)">' + GVari.tealists;
-		detail_posit.innerHTML		= '  &nbsp; <input type=text id=i_posit list="poslists" placeholder="선택 또는 등록(20자)">' + GVari.poslists;
 		detail_name.innerHTML		= '  &nbsp; <input type=text id=i_name placeholder="최대 20자" required>';
-		detail_job.innerHTML		= '  &nbsp; <input type=text id=i_job placeholder="최대 20자">';
-		detail_phone.innerHTML		= '  &nbsp; <input type=text id=i_phone placeholder="000-0000-0000">';
-		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell placeholder="000-0000-0000" required>';
-		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email placeholder="abc@abc.com">';
+		detail_url.innerHTML		= '  &nbsp; <input type=text id=i_url placeholder="최대 40자" required  size=50>';
+		detail_hint.innerHTML		= '  &nbsp; <input type=text id=i_hint placeholder="최대 20자" required>';
 		detail_etc.value			= "";
 		detail_etc.readOnly			= false;
 
 		detail_favo.innerHTML		= '  &nbsp; <input type=text id=i_favo placeholder="숫자 입력">';
-		idphoto.src					= Show.photoImg();
-		detail_info.innerHTML		= ' &nbsp;  최적 크기 : 100x100';
-		detail_photo.innerHTML		= '  &nbsp; <input type=file id=i_photo onchange="Show.photoFile(this.files);" class=hidden>';
-		detail_photo.innerHTML		+= '  &nbsp;<button onclick="Show.avatar();"> 아바타 선택</button> ';
 
 		cbutton.innerHTML	= "<b onclick='Show.offDetail();'>취소</b> | <b onclick='Doing.insert();'>등록</b>";
 		document.getElementById("address_detail_view").style.display	= 'block';
 	},
 
+	/** 즐겨찾기 수정 20200805 */
 	update : function( event ) {
 		var data	= GVari.addr;
 
@@ -163,25 +127,14 @@ var Show = {
 
 		if( data.favo == undefined )	data.favo	= 1;
 
-		detail_update.innerHTML		= "  &nbsp; " + now() + " &nbsp; ";
+		detail_update.innerHTML		= "  &nbsp; " + data.update + " &nbsp; ";
 		detail_cat.innerHTML		= '  &nbsp; <input type=text id=i_cat value="' + data.cat + '" list="catlists">' + GVari.catlists;
-		detail_company.innerHTML	= '  &nbsp; <input type=text id=i_company value="' + data.company + '" list="comlists">' + GVari.comlists;
-		detail_depart.innerHTML		= '  &nbsp; <input type=text id=i_depart value="' + data.depart + '" list="deplists">' + GVari.deplists;
-		detail_team.innerHTML		= '  &nbsp; <input type=text id=i_team value="' + data.team + '" list="tealists">' + GVari.tealists;
-		detail_posit.innerHTML		= '  &nbsp; <input type=text id=i_posit value="' + data.posit + '" list="poslists">' + GVari.poslists;
 		detail_name.innerHTML		= '  &nbsp; <input type=text id=i_name value="' + data.name + '">';
-		detail_job.innerHTML		= '  &nbsp; <input type=text id=i_job value="' + data.job + '">';
-		detail_phone.innerHTML		= '  &nbsp; <input type=text id=i_phone value="' + data.phone + '">';
-		detail_cellphone.innerHTML	= '  &nbsp; <input type=text id=i_cell value="' + data.cell + '">';
-		detail_email.innerHTML		= '  &nbsp; <input type=text id=i_email value="' + data.email + '">';
-		// detail_etc.innerHTML		= '  &nbsp; <input type=text id=i_etc value="' + data.etc + '" size=55>';
+		detail_url.innerHTML		= '  &nbsp; <input type=text id=i_url value="' + data.url + '">';
+		detail_hint.innerHTML		= '  &nbsp; <input type=text id=i_hint value="' + data.hint + '">';
 		detail_etc.value			= data.etc;
 		detail_etc.readOnly			= false;
 		detail_favo.innerHTML		= '  &nbsp; <input type=text id=i_favo value="' + data.favo + '">';
-		detail_info.innerHTML		= ' &nbsp;  최적 크기 : 100x100';
-		detail_photo.innerHTML		= '  &nbsp; <input type=file id=i_photo onchange="Show.photoFile(this.files);" class=hidden>';
-		detail_photo.innerHTML		+= '  &nbsp;<button onclick="Show.avatar();"> 아바타 선택</button> ';
-		// detail_pos.innerHTML		= '  &nbsp; <input type=text id=i_pos value=' + data.pos + '>';
 
 		cbutton.innerHTML	= "<b onclick='Show.details();'>취소</b> | <b onclick='Doing.update();'>적용</b>";
 	},
@@ -198,15 +151,15 @@ var Show = {
 		}
 	},
 
-	/** 상단 각 분류 표시 */
+	/** 상단 각 분류 표시 20200805 */
 	catDisplay : function() {
 		var cell	= "";
 		if( GVari !== undefined ) {
 			cell	= GVari.sel_Category;
 		}
-		IndexedDB.GroupByMenu( function(data){
+		FavoritesDB.GroupByMenu( function(data){
 			if( data.size == 0 ) {
-				catBoard.innerHTML	= "<td><br><br>안녕하세요. AddressBook을 처음 실행한 환경입니다.~!!!<br><br> 현재 등록된 내용이 없습니다. <br><br>아래 등록 링크을 눌러 주소록 등록을 하여 주십시오.<br><br><a onclick='Show.insert();'>[ 등록 ]</a><br></td>";
+				catBoard.innerHTML	= "<td><br><br>안녕하세요. FavoritesBook을 처음 실행한 상태입니다.~!!!<br><br> 현재 등록된 내용이 없습니다. <br><br>아래 등록 링크을 눌러 주소록 등록을 하여 주십시오.<br><br><a onclick='Show.insert();'>[ 등록 ]</a><br></td>";
 			} else {
 				catBoard.innerHTML	= "";
 				for( var [key, value] of data ) {
@@ -245,7 +198,7 @@ var Show = {
 			start		= ( curPage - 1 ) * GVari.cperpage;
 
 		/** 검색어 일치하는 Address 갯수 값을 가져와서 하단 네비게이션 바 생성 */
-		IndexedDB.countSearch( txt, function( data ) {
+		FavoritesDB.countSearch( txt, function( data ) {
 			totalpost	= parseInt( data );
 
 			if( totalpost > GVari.cperpage ) {
@@ -282,7 +235,7 @@ var Show = {
 
 		/** 갯수(GVari.cperpage) 만큼 Address 를 가져와서 표시 */
 		addrBox.innerHTML	= "";
-		IndexedDB.searchStr( start, GVari.cperpage, txt, function( data ) {
+		FavoritesDB.searchStr( start, GVari.cperpage, txt, function( data ) {
 			var lng	= data.length;
 			if( lng == 0 ) Show.searchList( curPage - 1 );
 			GVari.addrList = data;
@@ -340,8 +293,8 @@ var Show = {
 	},
 
 	/** 
-	 * "Data 백업" 버튼 
-	 * IndexedDB에 저장된 내용을 JSON 포멧으로 출력
+	 * "Data 백업" 버튼  20200805
+	 * FavoritesDB에 저장된 내용을 JSON 포멧으로 출력
 	 * 출력 내용은 Data Import 시에 사용 함.
 	 * */
 	backup : function() {
@@ -355,7 +308,7 @@ var Show = {
 
 		var _promise = function () {
 			return new Promise(function(resolve, reject) {
-				IndexedDB.selectAll( function(data) {
+				FavoritesDB.selectAll( function(data) {
 					if( data.length == 0 ) {
 						reject(Error("It broke"));
 					} else {
@@ -387,13 +340,13 @@ var Show = {
 		});
 	},
 
-	/** 휴지통 보기 */
+	/** 휴지통 보기 20200805 */
 	trashcan : function() {
 		Show.pagedList( 1, "휴지통" );
 	},
 
 	/**
-	 * 전체 Address 목록 표시
+	 * 전체 Address 목록 표시 20200805
 	 * curPage : 시작 페이지
 	 * cat : 분류 이름, 전체는 "ALL"
 	 */
@@ -408,7 +361,7 @@ var Show = {
 		Show.catDisplay();
 
 		/** 전체 Address 갯수 값을 가져와서 하단 네비게이션 바 생성 */
-		IndexedDB.countCat( cat, function( data ) {
+		FavoritesDB.countCat( cat, function( data ) {
 			totalpost	= parseInt( data );
 
 			if( totalpost > GVari.cperpage ) {
@@ -440,18 +393,17 @@ var Show = {
 
 		/** 갯수(GVari.cperpage) 만큼 Address 를 가져와서 표시 */
 		addrBox.innerHTML	= "";
-		IndexedDB.getData( start, GVari.cperpage, cat ).then( function( data ) {
+		FavoritesDB.getData( start, GVari.cperpage, cat ).then( function( data ) {
 			var lng	= data.length;
 			if( curPage != 1 && lng == 0 ) Show.pagedList( curPage - 1, cat );
 			if( lng != 0 ) {
 				GVari.addrList = data;
 				for( var i = 0 ; i < lng ; i++ ){
-					addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
-						+ data[i].team + "</td><td>" 
-						+ data[i].posit + "</td><td>" 
-						+ data[i].name + "</td><td>" 
-						+ data[i].job + "</td><td>" 
-						+ data[i].cell + "</td></tr>";
+					addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].name + "</td><td>" 
+						+ data[i].url + "</td><td>" 
+						+ data[i].hint + "</td><td>" 
+						+ data[i].update + "</td><td>" 
+						+ data[i].favo + "</td></tr>";
 				}
 				Common.tblRollOver(document.getElementById("addrBox"));
 			}
@@ -459,7 +411,7 @@ var Show = {
 	},
 
 	/**
-	 * 전체 Address 목록 표시
+	 * 전체 Address 목록 표시 20200805
 	 * curPage : 시작 페이지
 	 * cat : 분류 이름, 전체는 "ALL"
 	 */
@@ -470,16 +422,15 @@ var Show = {
 
 		/** 갯수(GVari.cperpage) 만큼 Address 를 가져와서 표시 */
 		addrBox.innerHTML	= "";
-		IndexedDB.getFavo( GVari.cperpage, function( data ) {
+		FavoritesDB.getFavo( GVari.cperpage, function( data ) {
 			var lng	= data.length;
 			GVari.addrList = data;
 			for( var i = 0 ; i < lng ; i++ ){
-				addrBox.innerHTML += "<tr><td>" + data[i].company + "</td><td>" 
-					+ data[i].team + "</td><td>" 
-					+ data[i].posit + "</td><td>" 
-					+ data[i].name + "</td><td>" 
-					+ data[i].job + "</td><td>" 
-					+ data[i].cell + "</td></tr>";
+				addrBox.innerHTML += "<tr><td>" + data[i].name + "</td><td>" 
+					+ data[i].url + "</td><td>" 
+					+ data[i].hint + "</td><td>" 
+					+ data[i].update + "</td><td>" 
+					+ data[i].favo + "</td></tr>";
 			}
 			Common.tblRollOver(document.getElementById("addrBox"));
 		});
@@ -526,7 +477,7 @@ var Show = {
 	/** 구분, 회사, 부서, 팀, 직급에 대한 목록을 Select Box로 구성함. */
 	genDatalists : function() {
 
-		IndexedDB.GetUniqueValue( 'catIdx', function(data){
+		FavoritesDB.GetUniqueValue( 'catIdx', function(data){
 			if( data.size != 0 ) {
 				GVari.catlists = "<datalist id='catlists'>";
 				for( var [key, value] of data ) {
@@ -535,57 +486,15 @@ var Show = {
 				GVari.catlists += "</datalist>";
 			}
 		});
-
-		IndexedDB.GetUniqueValue( 'companyIdx', function(data){
-			if( data.size != 0 ) {
-				GVari.comlists = "<datalist id='comlists'>";
-				for( var [key, value] of data ) {
-					GVari.comlists	+= "<option value='" + key + "'/>";
-				}	
-				GVari.comlists += "</datalist>";
-			}
-		});
-		
-		IndexedDB.GetUniqueValue( 'departIdx', function(data){
-			if( data.size != 0 ) {
-				GVari.deplists = "<datalist id='deplists'>";
-				for( var [key, value] of data ) {
-					GVari.deplists	+= "<option value='" + key + "'/>";
-				}	
-				GVari.deplists += "</datalist>";
-			}
-		});
-
-		IndexedDB.GetUniqueValue( 'teamIdx', function(data){
-			if( data.size != 0 ) {
-				GVari.tealists = "<datalist id='tealists'>";
-				for( var [key, value] of data ) {
-					GVari.tealists	+= "<option value='" + key + "'/>";
-				}	
-				GVari.tealists += "</datalist>";
-			}
-		});
-
-		IndexedDB.GetUniqueValue( 'positIdx', function(data){
-			if( data.size != 0 ) {
-				GVari.poslists = "<datalist id='poslists'>";
-				for( var [key, value] of data ) {
-					GVari.poslists	+= "<option value='" + key + "'/>";
-				}
-				GVari.poslists += "</datalist>";
-			}
-		});
 	},
 
-	whetherCorrect : function( data ) {
+	/** 필수 입력 항목 검사 20200805 */
+	checkRequiredInput : function( data ) {
 		var errMsg	= "";
 
 		if( data.cat == "" )	errMsg	+= "구분 ex) 가족, 협력업체, 동료,..\n";
-		if( data.name == "" )	errMsg	+= "이름 : 최소 2글자 이상\n";
-		if( data.phone == "" && data.cell == "" ) {
-			if( data.phone == "" )	errMsg	+= "사무실 전화번호 ex) 02-0000-0000,..\n";
-			if( data.cell == "" )	errMsg	+= "휴대 전화번 ex) 010-0000-0000, 01012341234\n";
-		}
+		if( data.name == "" )	errMsg	+= "즐겨찾기 이름 : 최소 2글자 이상\n";
+		if( data.url == "" )	errMsg	+= "즐겨찾기 URL : 최소 10글자 이상\n";
 		if( errMsg == "" ) {
 			return true;
 		} else {
@@ -603,7 +512,7 @@ var Doing = {
 		if( addr.favo == undefined )	addr.favo	= 1;
 		else							addr.favo	= addr.favo + 1;
 
-		IndexedDB.insert(addr,function(data){
+		FavoritesDB.insert(addr,function(data){
 			if( data != false ) {
 				//console.log ( addr.name + " : 이동 완료." );
 				//Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
@@ -613,28 +522,21 @@ var Doing = {
 		});
 	},
 
-	/** "등록" 버튼 */
+	/** "등록" 버튼 20200805 */
 	insert : function() {
 		var addr = {
 			pos:0,
 			cat:i_cat.value,
-			company:i_company.value,
-			depart:i_depart.value, 
-			team:i_team.value, 
-			posit:i_posit.value, 
 			name:i_name.value, 
-			job:i_job.value, 
-			phone:i_phone.value, 
-			cell:i_cell.value, 
-			email:i_email.value, 
+			url:i_url.value,
+			hint:i_hint.value, 
 			etc:detail_etc.value,
 			favo:parseInt( i_favo.value ),
 			update:now(),
-			photo:GVari.addr.photo
 			//id:
 		}
 
-		if( Show.whetherCorrect( addr ) ) {
+		if( Show.checkRequiredInput( addr ) ) {
 			/** 해당 분류에 마지막 pos 값을 구한 후 등록 진행 */
 			GVari.addr			= addr;
 			GVari.sel_curPage	= 1;
@@ -674,13 +576,13 @@ var Doing = {
 		}
 	},
 
-	/** 지정된 Category로 Address 이동 */
+	/** 지정된 Category로 Address 이동 20200805 */
 	movingAddr : function ( cat, addr ) {
 
 		// 선택된 분류(Cat)에 위치(pos)의 최대값 가져오기
 		var _promise = function () {
 			return new Promise(function(resolve, reject) {
-				IndexedDB.getCatMaxValue( cat, function(data){
+				FavoritesDB.getCatMaxValue( cat, function(data){
 					if( data == 0 ) {
 						reject(Error("It broke"));
 						return false;
@@ -694,7 +596,7 @@ var Doing = {
 		_promise().then(function (data) {
 			addr.cat	= cat;
 			addr.pos	= parseInt( data );
-			IndexedDB.insert(addr,function(data){
+			FavoritesDB.insert(addr,function(data){
 				if( data != false ) {
 					GVari.addr.id	= data;
 					Show.pagedList(GVari.sel_curPage, GVari.sel_Category );
@@ -705,7 +607,7 @@ var Doing = {
 		});
 	},
 
-	/** 수정 내용 저장 */
+	/** 수정 내용 저장 20200805 */
 	update : function() {
 
 		var data	= GVari.addr;
@@ -717,26 +619,19 @@ var Doing = {
 		var addr = {
 			id:selID,	// id 변경 불가
 			cat:i_cat.value,
-			company:i_company.value,
-			depart:i_depart.value, 
-			team:i_team.value, 
-			posit:i_posit.value, 
 			name:i_name.value, 
-			job:i_job.value, 
-			phone:i_phone.value, 
-			cell:i_cell.value, 
-			email:i_email.value, 
+			url:i_url.value, 
+			hint:i_hint.value,
 			etc:detail_etc.value,
 			favo:parseInt( i_favo.value ),
 			pos:parseInt( data.pos ),	// pos 변경 불가
 			update:now(),
-			photo:GVari.addr.photo
 		}
 
-		if( Show.whetherCorrect( addr ) ) {
+		if( Show.checkRequiredInput( addr ) ) {
 			/** 분류(Category)가 수정이 되었는지 확인 */
 			if( data.cat == i_cat.value ) {	// 분류(Category)가 변경되지 않은 경우, pos를 제외하고 변경
-				IndexedDB.insert(addr,function(data){
+				FavoritesDB.insert(addr,function(data){
 					if(data != false){
 						// console.log( "수정 완료" );
 					} else {
@@ -758,7 +653,7 @@ var Doing = {
 
 		var postData	= "전체 데이터를 삭제하시겠습니까?";
 		if( confirm( postData ) ) {
-			IndexedDB.deleteAll( function(isOk){
+			FavoritesDB.deleteAll( function(isOk){
 				if(isOk == true) {
 					alert( "전체 데이터 삭제 작업 완료." );
 				} else {
@@ -781,7 +676,7 @@ var Doing = {
 				
 				var lng = content.length;
 				for( var i = 0 ; i < lng ; i++ ) {
-					IndexedDB.insert(content[i],function(data){
+					FavoritesDB.insert(content[i],function(data){
 						if(data != false){
 							console.log( "Data 추가 중 ... [" + i + "/" + lng + "]" );
 						}
@@ -911,7 +806,7 @@ document.addEventListener("drop", function( event ) {
 
 		var _promise = function () {
 			return new Promise(function(resolve, reject) {
-				IndexedDB.getPosInRange(seledCat, start, end, function(data){
+				FavoritesDB.getPosInRange(seledCat, start, end, function(data){
 					resolve( data );
 				});
 			});	
@@ -937,7 +832,7 @@ document.addEventListener("drop", function( event ) {
 
 			// 변경된 데이터를 저장 시킴
 			for( var i = 0 , lng = data.length ; i < lng ; i++ ){
-				IndexedDB.insert(data[i],function(rdata){
+				FavoritesDB.insert(data[i],function(rdata){
 					if(rdata != false){
 						console.log( "Data 추가 중 ... [" + i + "/" + lng + "]" );
 					}
@@ -953,7 +848,7 @@ document.addEventListener("drop", function( event ) {
 		if( seledCat != newCat ) {			// 선택한 Address를 Drop한 위치의 Category가 다른 경우
 			var _promise2 = function () {	// 선택된 Category내의 최대 Pos 값에 +1 한 값을 리턴한다
 				return new Promise(function(resolve, reject) {
-					IndexedDB.getCatMaxValue( newCat ,function(data){
+					FavoritesDB.getCatMaxValue( newCat ,function(data){
 						resolve(parseInt( data ));
 					});
 				});
@@ -964,7 +859,7 @@ document.addEventListener("drop", function( event ) {
 				data.cat = newCat;	// 바뀐 Category로 변경
 				data.pos = nextPos;	// Category내의 마지막 Pos 값으로 위치 지정
 				
-				IndexedDB.insert(data,function(data){		// 바뀐 정보로 Update
+				FavoritesDB.insert(data,function(data){		// 바뀐 정보로 Update
 					if( data != false ) {
 						// 위치 이동 후 목록 갱신
 						Show.pagedList(GVari.sel_curPage, GVari.sel_Category );

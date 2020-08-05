@@ -1,0 +1,14 @@
+* ToDo List for FavoritesBook  ( 즐겨찾기 )
+
+- Category 구조 ( 업무, 취미, Server, DB, Web,... )
+- Top20 ( 조회수를 기반 )
+- 조회수는 수정 가능해야 한다
+- 최초 등록 / 마지막 수정일 기록
+- id / 조회수 / pos / 구분 / 이름 / url / 기타 정보 / CreatDate / LastUpdate / 
+- 추가 / 수정 / 삭제 / 동일 Category 내의 위치이동 / 다른 Category 로의 이동 /
+
+dataBaseName = "FavoritesDB"
+id, favo, pos, cat, name, url, etc, crdate, laupdate
+===============================
+
+===============================

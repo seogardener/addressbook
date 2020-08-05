@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>::: 업무 연락처</title>
+<style>
+html {
+    background:#fff;
+    height : 100%;
+    margin: auto;
+}
+body {
+    font: 100% Verdana, Helvetica, Arial, sans-serif;
+    max-height:100%; 
+    padding:0; 
+    margin: 0 auto;
+    border:0;
+    width:100%;
+    height:100%;
+}
+label {
+	display: inline-block;
+	width: 70px;
+}
+#draggable {
+	width: 100px;
+	height: 20px;
+	text-align: center;
+	background: white;
+}
+.dropzone {
+	width: 100px;
+	height: 20px;
+	background: whitesmoke;
+	margin-bottom: 10px;
+	padding: 2px;
+	color: blueviolet;
+	text-align: center;
+}
+.dropzone:hover{
+	background-color:#FFBF80;
+	color: black;
+	text-shadow: -.25px -.25px 0 black, .25px .25px black;
+}
+table {
+    font: 13px Verdana, Helvetica, Arial, sans-serif;
+    line-height: 25px;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+input {
+	outline-style: none;
+}
+input:focus {
+	outline: none;
+}
+textarea {
+	outline-style: none;
+	cursor:default; 
+	outline-style:unset; 
+	border:0; 
+	overflow:auto; 
+	width: 98%; 
+	height:98%;
+}
+textarea:focus {
+	outline: none;
+}
+img {
+	max-width: 100%;
+	display: block;
+	margin: 0px auto;
+}
+
+</style>
+</head>
+<body>
+    <div style="width:1px; height:1px; visibility:hidden; overflow:hidden">
+        <img src="img/dragImage.png" class ="dragContact" />
+        <img src="img/dragStop.png" class ="dragStop" />
+    </div>
+
+	<div style="width:95%; margin:0px auto; display:block;">
+		<div style="padding:3px;"></div>
+		<table class="list02" style="width:100%; height:30px;"><tbody><tr id="catBoard"></tr></tbody></table>
+		<div style="padding:3px;"></div>
+	</div>
+	
+	<div id=list_div style="width:95%; margin:0px auto; display:none;">
+		<table class="list01" style="width:100%;">
+			<thead><tr><th width=15%>이름</th><th width=40%>URL</th><th width=20%>Hint</th><th width=15%>Update</th><th width=10%>클릭수</th></tr>
+			<tbody id=addrBox></tbody>
+			<tfoot style='background-color:#54D1F1;'><tr><td colspan='3' id='paging'></td><td id='totalcnt'></td><td><a onclick='Show.insert();'>[등록]</a></td></tr></tfoot>
+		</table>
+	</div>
+
+	<div id=bottom_div style="width:95%; margin:0px auto; display:none;">
+		<div style="padding:3px;"></div>
+		<table class="list01" style="width:100%; height:30px; background-color:#BBD9EE;">
+			<tfoot><tr><td>
+				<a onclick='Show.b_test();'>Test</a> / 
+				<a onclick='Show.pagedList4Favo();'>Top20</a> / 
+				<a onclick='Show.trashcan();'>휴지통</a> / 
+				<a onclick='Show.b_list();'>전체</a> / 
+				<a onclick='Show.backup();'>전체 백업</a> / 
+				<a onclick='Doing.db_delete();'>전체 삭제</a> / 
+				일괄 입력 <input type="file" id="addrfile" accept="text/*"> /
+				<input id=a_search size=12 placeholder="조회" onkeypress='Show.doSearch0();'> 
+			</td></tr></tfoot></table>
+	</div>
+
+	<div id="address_detail_view" class="modal" style="display:none;">
+		<div class="modal-window" style="width:600px;">
+	
+		<table class="details" style="width:100%;">
+			<thead>
+				<tr>
+					<th colspan="3">
+						<div id="textbox">
+							<p style="float: left; margin: 0px 0px 0px 10px;" id="cltitle"></p>
+							<p style="font: 14px Verdana; float: right; margin: 10px 10px 0px 0px; cursor: pointer;" id="td_title2"></p>
+						</div>
+					</th>                
+				</tr>
+			</thead>
+			<tbody>
+				<tr><th style="width:110px;">구분 &nbsp; </th><td id="detail_cat"></td><td style="width:250px; text-align: right; font: 80% Verdana;" id=detail_update></td></tr>
+				<tr><th>이름 &nbsp; </th><td id="detail_name" colspan=2></td></tr>
+				<tr><th>URL &nbsp; </th><td id="detail_url" colspan=2></td></tr>
+				<tr><th>Hint &nbsp; </th><td id="detail_hint" colspan=2></td></tr>
+				<tr><th>조회 &nbsp; </th><td id="detail_favo" colspan=2></td></tr>
+				<tr><th>기타 정보 &nbsp; </th><td colspan=2><textarea cols="20" rows="3" id="detail_etc" placeholder="최대 20자" style="width: 480px; height: 100px; resize: none;"></textarea></td></tr>
+			</tbody>
+			<tfoot>
+				<tr><th colspan="3" id="cbutton"></th></tr>
+			</tfoot>
+		</table>
+	
+		</div>
+	</div>
+
+	
+</body>
+<script src="js/FavoritesDB.js"></script>
+<script src="js/common.js"></script>
+<script src="js/0002.js"></script>
+<link rel=StyleSheet href="css/favorites.css" type="text/css" />
+</html>
