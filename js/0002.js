@@ -1,12 +1,12 @@
 
 window.onload = function() {
-	utils.addListener( document.getElementById('addrBox'), "click",  Show.details );
-	utils.addListener( document.getElementById('addrfile'), "change",  Doing.addrfile );
+	utils.addListener( document.getElementById('addrBox'),   "click",   Show.details );
+	utils.addListener( document.getElementById('favofile0'), "change",  Doing.favofile );
+	utils.addListener( document.getElementById('favofile'),  "change",  Doing.favofile );
 
 	Show.catDisplay();
 	Show.pagedList4Favo();
 	Show.genDatalists();
-
 }
 
 FavoritesDB.checkDB();
@@ -25,7 +25,7 @@ var GVari = {
 
 var Show = {
 
-	/** "전체 목록" 버튼 : 전체 Address 목록 표시 */
+	/** "전체 목록" 버튼 : 전체 Address 목록 표시 20200806 */
 	b_list : function() {
 		Show.pagedList( 1, "ALL" );
 	},
@@ -81,19 +81,7 @@ var Show = {
 		document.getElementById("address_detail_view").style.display	= 'block';
 	},
 
-	photoImg : function( photo ) {
-
-		if( photo == undefined ) {
-			return GVari.idPhotoPath + GVari.defIdPhoto;
-		} else {
-			if( photo.length < 100 ) {	// 제공하는 아바타를 이용한 이미지
-				return GVari.idPhotoPath + photo;
-			} else {	// 별도로 등록한 이지미
-				return photo;
-			}
-		}
-	},
-
+	/** 상세보기 Lightbox 닫기 20200806 */
 	offDetail : function() {
 		Doing.cntChkFavo();
 		document.getElementById("address_detail_view").style.display	= 'none';
@@ -139,18 +127,6 @@ var Show = {
 		cbutton.innerHTML	= "<b onclick='Show.details();'>취소</b> | <b onclick='Doing.update();'>적용</b>";
 	},
 
-	photoFile : function( event ) {
-		var file	= i_photo.files[0];
-		var reader	= new FileReader();
-
-		reader.readAsDataURL( file );
-		reader.onload = function( e ) {
-			var bits		= e.target.result;
-			idphoto.src		= bits;
-			GVari.addr.photo= bits;
-		}
-	},
-
 	/** 상단 각 분류 표시 20200805 */
 	catDisplay : function() {
 		var cell	= "";
@@ -159,7 +135,7 @@ var Show = {
 		}
 		FavoritesDB.GroupByMenu( function(data){
 			if( data.size == 0 ) {
-				catBoard.innerHTML	= "<td><br><br>안녕하세요. FavoritesBook을 처음 실행한 상태입니다.~!!!<br><br> 현재 등록된 내용이 없습니다. <br><br>아래 등록 링크을 눌러 주소록 등록을 하여 주십시오.<br><br><a onclick='Show.insert();'>[ 등록 ]</a><br></td>";
+				document.getElementById("welcom_div").style.display	= 'block';
 			} else {
 				catBoard.innerHTML	= "";
 				for( var [key, value] of data ) {
@@ -172,11 +148,12 @@ var Show = {
 				}
 				document.getElementById("list_div").style.display	= 'block';
 				document.getElementById("bottom_div").style.display	= 'block';
+				document.getElementById("welcom_div").style.display	= 'none';
 			}
 		});
 	},
 
-	/** Enter key 인지를 확인 한 후 처리 실행 */
+	/** 조회 입력 창 ,Enter key 인지를 확인 한 후 처리 실행 20200806 */
 	doSearch0 : function() {
         if( event.which == 13 || event.keyCode == 13 ) {
             Show.searchList(1);
@@ -185,7 +162,7 @@ var Show = {
         return true;
 	},
 
-	/** 검색어와 매치되는 Address 목록 표시 + Paging */
+	/** 검색어와 매치되는 Address 목록 표시 + Paging 20200806 */
 	searchList : function( curPage ) {
 		var txt	= a_search.value;
 		// 검색어 최소 2자 이상부터 가능
@@ -240,12 +217,11 @@ var Show = {
 			if( lng == 0 ) Show.searchList( curPage - 1 );
 			GVari.addrList = data;
 			for( var i = 0 ; i < lng ; i++ ){
-				addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].company + "</td><td>" 
-					+ data[i].team + "</td><td>" 
-					+ data[i].posit + "</td><td>" 
-					+ data[i].name + "</td><td>" 
-					+ data[i].job + "</td><td>" 
-					+ data[i].cell + "</td></tr>";
+				addrBox.innerHTML += "<tr draggable='true'><td>" + data[i].name + "</td><td>" 
+					+ data[i].url + "</td><td>" 
+					+ data[i].hint + "</td><td>" 
+					+ data[i].update + "</td><td>" 
+					+ data[i].favo + "</td></tr>";
 			}
 			Common.tblRollOver(document.getElementById("addrBox"));
 		});
@@ -438,43 +414,7 @@ var Show = {
 		paging.innerHTML	= "[ Top " + GVari.cperpage + " Address List ]";
 	},
 
-	/** 아바타 선택 창에서 클릭한 경우 : 주화면 아바타 변경, GVari.addr 저장 */
-	theChangedAvatar : function( img ) {
-		idphoto.src			= GVari.idPhotoPath + img;
-		GVari.addr.photo	= img;
-	},
-
-	avatar : function(){
-
-		var contents  = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-		contents	+= '<HTML  xmlns="http://www.w3.org/1999/xhtml"><HEAD>';
-		contents	+= '<TITLE>AddressBook :: 사용자 아바타 선택</TITLE>';
-		contents	+= '<link rel=stylesheet href="css/address_book.css" type="text/css">';
-		contents	+= '</HEAD><BODY><center>';
-		
-		contents	+= '<table class="list02" style="width:100%; font: 70% Verdana; line-height: 22px;">';
-		contents	+= '<thead><tr><th colspan=5>사용자 아바타 선택</th></tr></thead>';
-		contents	+= '<tbody id="errmsgs">';
-
-		var idLng	= Object.keys(GVari.idPhotos).length + 1;
-		var i		= 1;
-		for(  ; i < idLng ; i++ ) {
-			if( i%5 == 1 ) {	contents	+= '<tr>';	}		// tr 열기
-			contents	+= "<td><a href='#' onclick='opener.Show.theChangedAvatar(\"" + GVari.idPhotos[i] + "\");window.close();'><img src='img/idphoto/" + GVari.idPhotos[i] + "'></a></td>";
-			if( i%5 == 0 ) {	contents	+= '</tr>';	}		// tr 닫기
-		}
-		// tr 당 모자른 td 를 채움
-		for( var j = ( 5 - ( i - 1 ) % 5 ) ; j > 0 ; j-- ) {
-			contents	+= '<td> &nbsp; </td>';
-		}
-		contents	+= '</tr></tbody></table></center></BODY></HTML>';
-		
-		var all = window.open('', 'errMsg', 'width=680,height=600,menubar=no,resizable=yes,scrollbars=yes,toolbar=nolocation=no,status=no');
-		all.document.write(contents);
-		all.document.close();
-	},
-
-	/** 구분, 회사, 부서, 팀, 직급에 대한 목록을 Select Box로 구성함. */
+	/** 구분, 회사, 부서, 팀, 직급에 대한 목록을 Select Box로 구성함. 20200806 */
 	genDatalists : function() {
 
 		FavoritesDB.GetUniqueValue( 'catIdx', function(data){
@@ -506,7 +446,7 @@ var Show = {
 
 var Doing = {
 
-	/** 조회수 Counting */
+	/** 조회수 Counting 20200805 */
 	cntChkFavo : function() {
 		var addr	= GVari.addr;
 		if( addr.favo == undefined )	addr.favo	= 1;
@@ -546,28 +486,22 @@ var Doing = {
 		}
 	},
 
-	/** "삭제" 버튼 */
+	/** "삭제" 실행 20200806 */
 	remove : function() {
 
 		var data	= GVari.addr;
 		var precat	= data.cat;
 		if( data.id == "" ) {
-			alert( "선택된 Address가 없습니다.\n\n선택 후 삭제하십시오." );
+			alert( "선택된 즐겨찾기가 없습니다.\n\n선택 후 삭제하십시오." );
 			return false;
 		}
 
-		var postData	= "선택된 " + data.name + "를 삭제 하시겠습니까?\n";
+		var postData	= "선택된 즐겨찾기( " + data.name + " )를 삭제 하시겠습니까?\n";
 			postData	+= "\n구분 : " + data.cat;
-			postData	+= "\n회사 : " + data.company;
-			postData	+= "\n부서 : " + data.depart;
-			postData	+= "\n팀 : " + data.team;
-			postData	+= "\n직급 : " + data.posit;
-			postData	+= "\n업무 : " + data.job;
-			postData	+= "\n회사 전화 : " + data.phone;
-			postData	+= "\n휴대 전화 : " + data.cell;
-			postData	+= "\ne-Mail : " + data.email;
+			postData	+= "\n이름 : " + data.name;
+			postData	+= "\nURL : " + data.url;
+			postData	+= "\nHint : " + data.hint;
 			postData	+= "\n기타 : " + data.etc;
-			postData	+= "\n순번 : " + data.pos;
 			postData	+= "\n조회수 : " + data.favo;
 
 		if( confirm( postData ) ) {
@@ -648,24 +582,25 @@ var Doing = {
 		}
 	},
 
-	/** 전체 데이터 삭제 */
+	/** 전체 데이터 삭제 20200806 */
 	db_delete : function() {
 
-		var postData	= "전체 데이터를 삭제하시겠습니까?";
+		var postData	= "전체 즐겨찾기 데이터를 삭제하시겠습니까?";
 		if( confirm( postData ) ) {
 			FavoritesDB.deleteAll( function(isOk){
 				if(isOk == true) {
-					alert( "전체 데이터 삭제 작업 완료." );
+					alert( "전체 즐겨찾기 데이터 삭제 작업 완료." );
+					location.reload();
 				} else {
-					alert( "전체 데이터 삭제 작업 실패. <br> 브라우저 재실행 후 다시 시도하세요." );
+					alert( "전체 즐겨찾기 데이터 삭제 작업 실패. <br> 브라우저 재실행 후 다시 시도하세요." );
 				}
 			});
-			Show.catDisplay();
 		}
-
 	},
 
-	addrfile : function() {
+	/** 일괄 입력 (파일) 20200806 */
+	favofile : function() {
+		console.log("시작");
 		var file = this.files[0];
 		console.log( "파일로 부터 데이터를 읽어오는 중입니다." );
 		var fReader = new FileReader();
@@ -683,6 +618,8 @@ var Doing = {
 					});
 				}
 				Show.catDisplay();
+				Show.pagedList4Favo();
+				Show.genDatalists();
 			}
 		});
 		fReader.addEventListener("error", function(e){
@@ -743,8 +680,23 @@ document.addEventListener("dragover", function( event ) {
 // highlight potential drop target when the draggable element enters it
 // 선택된 항목을 끌면서 아래에 놓이게 되는 항목에 대한 액션
 document.addEventListener("dragenter", function( event ) {
+	var clickElement	= event.target || event.srcElement;
+	var g_newidx		= clickElement.parentNode.rowIndex - 1;
+	var seltLine		= g_oldidx;
+	var overLine		= g_newidx;
+
+	/** 
+	 * 화면 표현 문제 해결
+	 * 
+	 * 선택된 항목(주소록)을 위쪽으로 이동시키기 위해 끌어 올리는 경우 아래에 놓여지는 항목의 위쪽으로 이동이 됨으로 항목의 위쪽 테두리를 두껍게 표시하여 이동하는 위치를 명확하게 표시함.
+	 * 선택된 항목을 아래쪽으로 이동시키기 위해 끌어 내리는 경우 아래에 놓여지는 항목의 아래쪽으로 이동이 됨으로 항목의 아래쪽 테두리를 두껍게 표시하여 이동하는 위치를 명확하게 표시함.
+	 */
 	if( event.target.parentNode.parentNode.id == "addrBox") {
-		event.target.parentNode.style.borderTop  = "2px solid #cccccc";
+		if( seltLine > overLine ) {
+			event.target.parentNode.style.borderTop 	= "3px solid #cccccc";
+		} else {
+			event.target.parentNode.style.borderBottom  = "3px solid #cccccc";
+		}
 	} else if( event.target.parentNode.id == "catBoard") {
 		event.target.style.fontWeight="bold";
 	}
@@ -753,7 +705,8 @@ document.addEventListener("dragenter", function( event ) {
 // 선택된 항목을 끌면서 아래에 놓였다가 빠져나간 후의 액션
 document.addEventListener("dragleave", function( event ) {
 	if( event.target.parentNode.parentNode.id == "addrBox") {
-		event.target.parentNode.style.borderTop  = "initial";
+		event.target.parentNode.style.borderTop  	= "initial";
+		event.target.parentNode.style.borderBottom  = "initial";
 	} else if( event.target.parentNode.id == "catBoard") {
 		event.target.style.fontWeight="normal";
 	}

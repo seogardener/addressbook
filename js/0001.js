@@ -1,7 +1,8 @@
 
 window.onload = function() {
-	utils.addListener( document.getElementById('addrBox'), "click",  Show.details );
-	utils.addListener( document.getElementById('addrfile'), "change",  Doing.addrfile );
+	utils.addListener( document.getElementById('addrBox'),   "click",   Show.details );
+	utils.addListener( document.getElementById('addrfile0'), "change",  Doing.addrfile );
+	utils.addListener( document.getElementById('addrfile'),  "change",  Doing.addrfile );
 
 	Show.catDisplay();
 	Show.pagedList4Favo();
@@ -206,7 +207,7 @@ var Show = {
 		}
 		IndexedDB.GroupByMenu( function(data){
 			if( data.size == 0 ) {
-				catBoard.innerHTML	= "<td><br><br>안녕하세요. AddressBook을 처음 실행한 환경입니다.~!!!<br><br> 현재 등록된 내용이 없습니다. <br><br>아래 등록 링크을 눌러 주소록 등록을 하여 주십시오.<br><br><a onclick='Show.insert();'>[ 등록 ]</a><br></td>";
+				document.getElementById("welcom_div").style.display	= 'block';
 			} else {
 				catBoard.innerHTML	= "";
 				for( var [key, value] of data ) {
@@ -219,6 +220,7 @@ var Show = {
 				}
 				document.getElementById("list_div").style.display	= 'block';
 				document.getElementById("bottom_div").style.display	= 'block';
+				document.getElementById("welcom_div").style.display	= 'none';
 			}
 		});
 	},
@@ -761,11 +763,11 @@ var Doing = {
 			IndexedDB.deleteAll( function(isOk){
 				if(isOk == true) {
 					alert( "전체 데이터 삭제 작업 완료." );
+					location.reload();
 				} else {
 					alert( "전체 데이터 삭제 작업 실패. <br> 브라우저 재실행 후 다시 시도하세요." );
 				}
 			});
-			Show.catDisplay();
 		}
 
 	},
@@ -788,6 +790,8 @@ var Doing = {
 					});
 				}
 				Show.catDisplay();
+				Show.pagedList4Favo();
+				Show.genDatalists();
 			}
 		});
 		fReader.addEventListener("error", function(e){
@@ -848,8 +852,24 @@ document.addEventListener("dragover", function( event ) {
 // highlight potential drop target when the draggable element enters it
 // 선택된 항목을 끌면서 아래에 놓이게 되는 항목에 대한 액션
 document.addEventListener("dragenter", function( event ) {
+	var clickElement	= event.target || event.srcElement;
+	var g_newidx		= clickElement.parentNode.rowIndex - 1;
+	var seltLine		= g_oldidx;
+	var overLine		= g_newidx;
+
+	/** 
+	 * 화면 표현 문제 해결
+	 * 
+	 * 선택된 항목(주소록)을 위쪽으로 이동시키기 위해 끌어 올리는 경우 아래에 놓여지는 항목의 위쪽으로 이동이 됨으로 항목의 위쪽 테두리를 두껍게 표시하여 이동하는 위치를 명확하게 표시함.
+	 * 선택된 항목을 아래쪽으로 이동시키기 위해 끌어 내리는 경우 아래에 놓여지는 항목의 아래쪽으로 이동이 됨으로 항목의 아래쪽 테두리를 두껍게 표시하여 이동하는 위치를 명확하게 표시함.
+	 */
 	if( event.target.parentNode.parentNode.id == "addrBox") {
-		event.target.parentNode.style.borderTop  = "2px solid #cccccc";
+		console.log( "selected = " + seltLine + " / Over = " + overLine );
+		if( seltLine > overLine ) {
+			event.target.parentNode.style.borderTop 	= "3px solid #cccccc";
+		} else {
+			event.target.parentNode.style.borderBottom  = "3px solid #cccccc";
+		}
 	} else if( event.target.parentNode.id == "catBoard") {
 		event.target.style.fontWeight="bold";
 	}
@@ -858,7 +878,8 @@ document.addEventListener("dragenter", function( event ) {
 // 선택된 항목을 끌면서 아래에 놓였다가 빠져나간 후의 액션
 document.addEventListener("dragleave", function( event ) {
 	if( event.target.parentNode.parentNode.id == "addrBox") {
-		event.target.parentNode.style.borderTop  = "initial";
+		event.target.parentNode.style.borderTop 	= "initial";
+		event.target.parentNode.style.borderBottom  = "initial";
 	} else if( event.target.parentNode.id == "catBoard") {
 		event.target.style.fontWeight="normal";
 	}

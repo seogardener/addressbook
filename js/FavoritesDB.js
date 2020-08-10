@@ -50,28 +50,6 @@ var FavoritesDB = {
 		}
 	},
 	
-	selectId: function (id, callback) {
-		var database = this.getConnection();
-		database.onsuccess = function () {
-			var db = database.result;
-			var tx = db.transaction(FavoritesDB.schemaName, "readonly");
-			var keyRange = IDBKeyRange.only( id );
-			var cursor = tx.objectStore(FavoritesDB.schemaName).index("keyIndex").get( keyRange );
-
-			cursor.onsuccess = function (event) {
-				//callback(cursor.result);
-			};
-			tx.oncomplete = function () {
-				// console.log( "연결 종료") ;
-				callback(cursor.result);
-				db.close();
-			};
-		}
-		database.onerror = function (event) {
-			callback(event);
-		}
-	},
-
 	/** 전체 데이터 보여기 : 전체 백업 20200805  */
 	selectAll: function (callback) {
 		var database = this.getConnection();
@@ -283,7 +261,7 @@ var FavoritesDB = {
 		}
 	},
 
-	/** 상단 각 분류 표시를 위한 분류에 대한 유일한 값 찾기 */
+	/** 상단 각 분류 표시를 위한 분류에 대한 유일한 값 찾기 20200806 */
 	GroupByMenu : function( callback ) {
 		var database	= this.getConnection();
 		var dupes		= new Map();
@@ -316,7 +294,7 @@ var FavoritesDB = {
 		}
 	},
 
-	// 해당 Category(txt)내 주어진 범위의 Position값을 갖는 Record들을 출력
+	/** 해당 Category(txt)내 주어진 범위의 Position값을 갖는 Record들을 출력 20200806 */
 	getPosInRange : function( txt, start, end, callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
@@ -341,6 +319,7 @@ var FavoritesDB = {
 		}
 	},
 	
+	/** 전체 데이터 삭제 실행 20200806 */
 	deleteAll: function ( callback ) {
 		var database = this.getConnection();
 		database.onsuccess = function () {
@@ -367,7 +346,7 @@ var FavoritesDB = {
 		}
 	},
 	
-	/** 개별 항목에 대한 Uniq 데이터를 수집해서 반환 */
+	/** 개별 항목에 대한 Uniq 데이터를 수집해서 반환 20200806 */
 	GetUniqueValue : function( idx, callback ) {
 		var database = this.getConnection();
 		var dupes = new Map();
@@ -431,7 +410,7 @@ var FavoritesDB = {
 	},
 
 	/** 
-	 * 검색어와 매치되는 Address를 목록을 반환
+	 * 검색어와 매치되는 Address를 목록을 반환 20200806
 	 * start : 첫번째 Address의 시작 위치
 	 * total : 반환할 Address의 개수
 	 * txt : 검색어
@@ -480,10 +459,10 @@ var FavoritesDB = {
 		}
 	},
 
-	/** 검색어를 포함하는 Address 전체 개수 반환 ( 최소 2글자 이상 ) */
+	/** 검색어를 포함하는 즐겨찾기 전체 개수 반환 ( 최소 2글자 이상 ) 20200806 */
 	countSearch : function( txt, callback ) {
 		var database= this.getConnection();
-		var exclCol	= ['photo', 'id', 'favo', 'pos'];
+		var exclCol	= ['id', 'favo', 'pos'];	// 검색 제외 컬럼
 		database.onsuccess = function () {
 			var db = database.result;
 			var tx = db.transaction(FavoritesDB.schemaName, "readonly");

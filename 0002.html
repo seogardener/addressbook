@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>::: 업무 연락처</title>
+<title>::: 업무 즐겨찾기</title>
 <style>
 html {
     background:#fff;
@@ -86,6 +86,18 @@ img {
 		<div style="padding:3px;"></div>
 	</div>
 	
+	<div id=welcom_div style="width:95%; margin:0px auto; display:none;">
+		<div style="padding:3px;"></div>
+		<table class="list02" style="width:100%; height:30px;"><tbody>
+			<tr><td>안녕하세요. FavoritesBook입니다.~!!!</td></tr>
+			<tr><td>이 화면은 FavoritesBook을 처음 실행했을때 보여지는 것입니다.~!!!</td></tr>
+			<tr><td>현재 등록된 내용이 없습니다.</td></tr>
+			<tr><td>아래 등록 링크을 눌러 즐겨찾기 등록을 하여 주십시오.</td></tr>
+			<tr><td><a onclick='Show.insert();'><b>[ 등록 ]</b></a> 또는 일괄 입력 <input type="file" id="favofile0" accept="text/*"><br></td></tr>
+		</tbody></table>
+		<div style="padding:3px;"></div>
+	</div>
+	
 	<div id=list_div style="width:95%; margin:0px auto; display:none;">
 		<table class="list01" style="width:100%;">
 			<thead><tr><th width=15%>이름</th><th width=40%>URL</th><th width=20%>Hint</th><th width=15%>Update</th><th width=10%>클릭수</th></tr>
@@ -104,7 +116,7 @@ img {
 				<a onclick='Show.b_list();'>전체</a> / 
 				<a onclick='Show.backup();'>전체 백업</a> / 
 				<a onclick='Doing.db_delete();'>전체 삭제</a> / 
-				일괄 입력 <input type="file" id="addrfile" accept="text/*"> /
+				일괄 입력 <input type="file" id="favofile" accept="text/*"> /
 				<input id=a_search size=12 placeholder="조회" onkeypress='Show.doSearch0();'> 
 			</td></tr></tfoot></table>
 	</div>
